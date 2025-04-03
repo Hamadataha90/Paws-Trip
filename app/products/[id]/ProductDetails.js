@@ -96,109 +96,109 @@ export default function ProductDetails({ product: initialProduct }) {
 
 
   
-  // const handleAddToCart = async () => {
-  //   try {
-  //     const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
-  
-  //     if (!selectedVariant?.id || !quantity || !adjustedPrice || !mainImage) {
-  //       throw new Error("Missing product information.");
-  //     }
-  
-  //     const color = normalizeColor(selectedVariant.title.split(" ")[0]);
-  
-  //     const newItem = {
-  //       id: selectedVariant.id,
-  //       quantity: parseInt(quantity, 10),
-  //       title: selectedVariant.title,
-  //       price: parseFloat(adjustedPrice),
-  //       image: mainImage,
-  //       color: color,
-  //     };
-  
-  //     const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
-  //     if (itemIndex > -1) {
-  //       currentCart[itemIndex].quantity += newItem.quantity;
-  //     } else {
-  //       currentCart.push(newItem);
-  //     }
-  
-  //     // إرسال السلة إلى API
-  //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ cart: currentCart }),
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update cart");
-  //     }
-  
-  //     const data = await response.json();
-  //     console.log(data.message);  // رسالة نجاح من الـ API
-  
-  //     localStorage.setItem("cart", JSON.stringify(currentCart));  // تحديث السلة في localStorage
-  
-  //     const notification = document.createElement("div");
-  //     notification.textContent = "Added to Cart!";
-  //     notification.style.cssText = `
-  //       position: fixed; top: 58px; right: 170px; background: #16a085; color: white;
-  //       padding: 10px 20px; border-radius: 5px; z-index: 1000;
-  //     `;
-  //     document.body.appendChild(notification);
-  //     setTimeout(() => notification.remove(), 2000);
-  //   } catch (error) {
-  //     const errorNotification = document.createElement("div");
-  //     errorNotification.textContent = "Error adding to cart. Please try again.";
-  //     errorNotification.style.cssText = `
-  //       position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white;
-  //       padding: 10px 20px; border-radius: 5px; z-index: 1000;
-  //     `;
-  //     document.body.appendChild(errorNotification);
-  //     setTimeout(() => errorNotification.remove(), 2000);
-  //     console.error("Error in handleAddToCart:", error.message);
-  //   }
-  // };
-
-
-
-
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = async () => {
     try {
-      setLoading(true);
       const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
-
+  
       if (!selectedVariant?.id || !quantity || !adjustedPrice || !mainImage) {
         throw new Error("Missing product information.");
       }
-
+  
       const color = normalizeColor(selectedVariant.title.split(" ")[0]);
+  
       const newItem = {
         id: selectedVariant.id,
         quantity: parseInt(quantity, 10),
         title: selectedVariant.title,
         price: parseFloat(adjustedPrice),
         image: mainImage,
-        color,
+        color: color,
       };
-
+  
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
       if (itemIndex > -1) {
         currentCart[itemIndex].quantity += newItem.quantity;
       } else {
         currentCart.push(newItem);
       }
-
-      localStorage.setItem("cart", JSON.stringify(currentCart));
-      showNotification("Added to Cart!", "#16a085");
+  
+      // إرسال السلة إلى API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cart: currentCart }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update cart");
+      }
+  
+      const data = await response.json();
+      console.log(data.message);  // رسالة نجاح من الـ API
+  
+      localStorage.setItem("cart", JSON.stringify(currentCart));  // تحديث السلة في localStorage
+  
+      const notification = document.createElement("div");
+      notification.textContent = "Added to Cart!";
+      notification.style.cssText = `
+        position: fixed; top: 58px; right: 170px; background: #16a085; color: white;
+        padding: 10px 20px; border-radius: 5px; z-index: 1000;
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 2000);
     } catch (error) {
-      showNotification("Error adding to cart. Please try again.", "#e74c3c");
+      const errorNotification = document.createElement("div");
+      errorNotification.textContent = "Error adding to cart. Please try again.";
+      errorNotification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white;
+        padding: 10px 20px; border-radius: 5px; z-index: 1000;
+      `;
+      document.body.appendChild(errorNotification);
+      setTimeout(() => errorNotification.remove(), 2000);
       console.error("Error in handleAddToCart:", error.message);
-    } finally {
-      setLoading(false);
     }
-  }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor]);
+  };
+
+
+
+
+  // const handleAddToCart = useCallback(() => {
+  //   try {
+  //     setLoading(true);
+  //     const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  //     if (!selectedVariant?.id || !quantity || !adjustedPrice || !mainImage) {
+  //       throw new Error("Missing product information.");
+  //     }
+
+  //     const color = normalizeColor(selectedVariant.title.split(" ")[0]);
+  //     const newItem = {
+  //       id: selectedVariant.id,
+  //       quantity: parseInt(quantity, 10),
+  //       title: selectedVariant.title,
+  //       price: parseFloat(adjustedPrice),
+  //       image: mainImage,
+  //       color,
+  //     };
+
+  //     const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
+  //     if (itemIndex > -1) {
+  //       currentCart[itemIndex].quantity += newItem.quantity;
+  //     } else {
+  //       currentCart.push(newItem);
+  //     }
+
+  //     localStorage.setItem("cart", JSON.stringify(currentCart));
+  //     showNotification("Added to Cart!", "#16a085");
+  //   } catch (error) {
+  //     showNotification("Error adding to cart. Please try again.", "#e74c3c");
+  //     console.error("Error in handleAddToCart:", error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor]);
 
 
 
