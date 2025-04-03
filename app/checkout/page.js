@@ -106,7 +106,7 @@ const CheckoutPage = () => {
               {cartItems.length > 0 ? (
                 <Row>
                   {cartItems.map((item) => (
-                    <Col md={3} xs={3} key={item.id} className="mb-3 text-center d-flex flex-column align-items-center">
+                    <Col md={4} xs={4} key={item.id} className="mb-3 text-center d-flex flex-column align-items-center">
                       <Card className="p-2">
                         <Card.Img src={item.image} alt={item.title} style={{ width: "100%", borderRadius: "8px" }} />
                         <h5 className="mt-2" style={{ color: "#1a3c34", fontSize: "1.1rem" }}>{item.title}</h5>
