@@ -161,7 +161,7 @@ const ProductCard = ({ product }) => {
             backgroundColor: "rgba(255, 255, 255, 0.8)",
             opacity: hovered ? 1 : 0,
             transition: "opacity 0.4s ease-in-out",
-            padding: "20px",
+            padding: "10px",
             textAlign: "center",
           }}
         >
