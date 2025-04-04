@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
-import { createPaypalPayment } from "../actions/paypal"; // Adjust the import path as necessary
+import { createCoinPaymentTransaction } from "../actions/coinpayments"; // استبدل المسار حسب مكان الملف
 
 // Function to validate CSS color
 const isValidCSSColor = (color) => {
@@ -30,13 +30,13 @@ const CheckoutPage = () => {
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [selectedCurrency, setSelectedCurrency] = useState("USDT.TRC20"); // القيمة الافتراضية
   const paypalRendered = useRef(false);
   const router = useRouter();
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     if (storedCart.length > 0) {
-      // Format the cart items
       const formattedCart = storedCart.map((item) => ({
         ...item,
         id: item.id || item.productId,
@@ -65,7 +65,7 @@ const CheckoutPage = () => {
     .reduce((sum, item) => sum + item.price * item.quantity, 0)
     .toFixed(2);
 
-  const handleOrderConfirmation = () => {
+  const handleOrderConfirmation = async () => {
     if (!shippingInfo.name || !shippingInfo.address || !shippingInfo.city) {
       setMessage({ type: "warning", text: "Please fill in all required shipping fields." });
       return;
@@ -74,12 +74,29 @@ const CheckoutPage = () => {
       setMessage({ type: "warning", text: "Cannot confirm order: Total amount must be greater than $0.00." });
       return;
     }
+
     setLoading(true);
-    const orderDetails = { cartItems, shippingInfo, totalPrice, orderDate: new Date().toISOString() };
-    localStorage.setItem("lastOrder", JSON.stringify(orderDetails));
-    localStorage.removeItem("cart");
-    setMessage({ type: "success", text: "Order confirmed! Redirecting..." });
-    setTimeout(() => router.push("/order-confirmation"), 2000);
+    const formData = new FormData();
+    formData.append("amount", totalPrice);
+    formData.append("email", shippingInfo.email || "customer@example.com");
+    formData.append("currency2", selectedCurrency); // إضافة العملة المختارة
+
+    try {
+      const result = await createCoinPaymentTransaction(formData);
+      if (result.success) {
+        const orderDetails = { cartItems, shippingInfo, totalPrice, txn_id: result.txn_id, orderDate: new Date().toISOString() };
+        localStorage.setItem("lastOrder", JSON.stringify(orderDetails));
+        localStorage.removeItem("cart");
+        setMessage({ type: "success", text: "Payment link generated! Redirecting to CoinPayments..." });
+        setTimeout(() => window.location.href = result.checkout_url, 2000);
+      } else {
+        setMessage({ type: "danger", text: `Payment failed: ${result.error}` });
+      }
+    } catch (error) {
+      setMessage({ type: "danger", text: "Something went wrong. Please try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!cartItems.length && !message) {
@@ -96,11 +113,9 @@ const CheckoutPage = () => {
       <h1 className="text-center mb-4" style={{ color: "#1a3c34", fontWeight: "bold" }}>Checkout</h1>
       {message && <Alert variant={message.type} onClose={() => setMessage(null)} dismissible>{message.text}</Alert>}
       
-      <Row className=" checkout" >
-        {/* Order Summary Column */}
-        <Col md={6} xs={12} >
+      <Row className="checkout">
+        <Col md={6} xs={12}>
           <Card className="shadow-sm mb-4 h-100 d-flex flex-column" style={{ border: "1px solid #ecf0f1" }}>
-            {/* Order Items Content */}
             <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
               <h4 className="mb-4" style={{ color: "#1a3c34" }}>Order Summary</h4>
               {cartItems.length > 0 ? (
@@ -121,16 +136,14 @@ const CheckoutPage = () => {
                 <p className="text-center" style={{ color: "#7f8c8d" }}>No items in your cart.</p>
               )}
             </Card.Body>
-
-            {/* Grand Total Section at the Bottom */}
             <div style={{
               padding: "15px",
               borderTop: "1px solid #ecf0f1",
               background: "#f8f9fa",
               textAlign: "center",
-              boxShadow: "0px -4px 10px rgba(0, 0, 0, 0.1)", // Shadow for the total section
-              position: "absolute", 
-              bottom: "0", // Fixing it at the bottom of the card
+              boxShadow: "0px -4px 10px rgba(0, 0, 0, 0.1)",
+              position: "absolute",
+              bottom: "0",
               width: "100%",
             }}>
               <h4 style={{ color: "#e74c3c", marginBottom: "0" }}>Grand Total: ${totalPrice}</h4>
@@ -138,7 +151,6 @@ const CheckoutPage = () => {
           </Card>
         </Col>
 
-        {/* Shipping Info & Payment Column */}
         <Col md={6} xs={12} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <Card className="shadow-sm" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
@@ -161,22 +173,36 @@ const CheckoutPage = () => {
             </Card.Body>
           </Card>
 
-          <Card className="shadow-sm" style={{ flexShrink: 0 }}>
+          <Card className="shadow-sm" style={{ flexShrink: "0" }}>
             <Card.Body>
               <h4 className="mb-4" style={{ color: "#1a3c34" }}>Payment</h4>
-              <div id="paypal-button-container"></div>
+              <Form.Group className="mb-3" controlId="currencySelect">
+                <Form.Label style={{ color: "#1a3c34" }}>Select Currency</Form.Label>
+                <Form.Select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  style={{ borderColor: "#bdc3c7", transition: "border-color 0.3s ease" }}
+                >
+                  <option value="DAI.BEP20">Dai Token (BSC)</option>
+                  <option value="USDC.BEP20">USD Coin (BSC)</option>
+                  <option value="USDC.SOL">USD Coin (Solana)</option>
+                  <option value="USDC.TRC20">USD Coin (Tron)</option>
+                  <option value="USDT.BEP20">Tether USD (BSC)</option>
+                  <option value="USDT.SOL">Tether USD (Solana)</option>
+                  <option value="USDT.TRC20">Tether USD (Tron)</option>
+                </Form.Select>
+              </Form.Group>
               <Button
                 variant="outline-primary"
                 className="w-100 mt-3"
                 onClick={handleOrderConfirmation}
                 disabled={loading || parseFloat(totalPrice) <= 0}
               >
-                Confirm Order 
+                {loading ? <Spinner animation="border" size="sm" /> : "Pay with Crypto"}
               </Button>
             </Card.Body>
           </Card>
         </Col>
-
       </Row>
     </Container>
   );
