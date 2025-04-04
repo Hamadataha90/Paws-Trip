@@ -184,6 +184,7 @@ const ProductCard = ({ product }) => {
           gap: "10px",
           opacity: hovered ? 1 : 0,
           transition: "opacity 0.4s ease-in-out",
+          marginTop: "10px",
         }}
       >
         {addedToCart ? (
