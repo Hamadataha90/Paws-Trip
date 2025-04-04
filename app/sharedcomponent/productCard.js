@@ -177,7 +177,7 @@ const ProductCard = ({ product }) => {
       <div
         style={{
           position: "absolute",
-          bottom: "30px",
+          bottom: "15px",
           width: "100%",
           display: "flex",
           justifyContent: "center",
