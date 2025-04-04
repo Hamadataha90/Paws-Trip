@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 const ClientZoomEffect = () => {
   useEffect(() => {
-    let zoomLevel = "85%";
+    let zoomLevel = "75%";
     document.body.style.zoom = zoomLevel;
 
     // Firefox fix: use transform scale instead
