@@ -6,10 +6,10 @@ import axios from 'axios'
 export async function createCoinPaymentTransaction(formData) {
   const amount = formData.get('amount')
   const email = formData.get('email')
-  const currency2 = formData.get("currency2");
+  const currency2 = formData.get("currency2")
 
-  const publicKey = process.env.NEXT_PUBLIC_COINPAYMENTS_PUBLIC_KEY
-  const privateKey = process.env.NEXT_PUBLIC_COINPAYMENTS_PRIVATE_KEY
+  const publicKey = process.env.COINPAYMENTS_PUBLIC_KEY
+  const privateKey = process.env.COINPAYMENTS_PRIVATE_KEY
 
   const payload = {
     version: "1",
@@ -17,11 +17,11 @@ export async function createCoinPaymentTransaction(formData) {
     key: publicKey,
     amount,
     currency1: "USD",
-    currency2: currency2 || "USDT.TRC20", // قيمة افتراضية لو حصلت مشكلة
+    currency2: currency2 || "USDT.TRC20",
     buyer_email: email,
-    ipn_url: "https://humidity-zone.vercel.app//api/ipn",
+    ipn_url: "https://humidity-zone.vercel.app/api/ipn",
     format: "json",
-  };
+  }
 
   const encodedPayload = new URLSearchParams(payload).toString()
 
