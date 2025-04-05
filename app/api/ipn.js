@@ -1,4 +1,6 @@
 import crypto from 'crypto'
+import nodemailer from 'nodemailer'
+import fs from 'fs'
 
 // منع Next.js من تحويل body
 export const config = {
@@ -24,9 +26,10 @@ function getRawBody(req) {
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
+    // الحصول على البيانات الخام من الـ IPN
     const rawBody = await getRawBody(req)
 
-    // Get HMAC from the header
+    // الحصول على الـ HMAC من الهيدر
     const hmacHeader = req.headers['hmac']
 
     // تحقق من صحة الـ HMAC باستخدام الـ private key
@@ -40,10 +43,35 @@ export default async function handler(req, res) {
     if (hmac === hmacHeader) {
       const ipnData = new URLSearchParams(rawBody)
 
-      // هنا ممكن تعمل تحديثات في قاعدة البيانات أو أي عملية أخرى
-      // مثل: تحديث حالة الدفع، إتمام المعاملات، إلخ.
+      // كتابة البيانات في ملف النصي (مؤقتًا)
+      fs.appendFileSync('payment_logs.txt', JSON.stringify(ipnData) + '\n')
 
-      res.status(200).send('OK')
+      // إعداد Nodemailer للإرسال
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,  // استخدم متغير البيئة للبريد الإلكتروني
+          pass: process.env.EMAIL_PASS,  // استخدم متغير البيئة للباسورد
+        },
+      })
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,  // نفس البريد المستخدم للإرسال
+        to: ipnData.get('buyer_email'),  // بريد العميل الذي دفع
+        subject: 'Payment Confirmation',
+        text: `Your payment with transaction ID ${ipnData.get('txn_id')} has been successfully processed.`,
+      }
+
+      // إرسال البريد الإلكتروني
+      try {
+        await transporter.sendMail(mailOptions)
+        console.log('Email sent successfully')
+      } catch (error) {
+        console.error('Error sending email:', error.message)
+      }
+
+      // إرسال الرد بـ OK
+      res.status(200).send('Payment processed successfully')
     } else {
       res.status(400).send('Invalid HMAC')
     }
