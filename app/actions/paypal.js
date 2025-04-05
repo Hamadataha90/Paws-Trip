@@ -4,7 +4,7 @@ import axios from "axios";
 const API_URL = process.env.API_URL || "http://localhost:3000";
 
 export async function createPaypalPayment(amount, currency = "USD") {
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const clientId = process.env.PAYPAL_CLIENT_ID;
   const secret = process.env.PAYPAL_SECRET;
 
   if (!clientId || !secret) {
