@@ -11,7 +11,7 @@ export const fetchFeaturedProducts = cache(async () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "X-Shopify-Access-Token": process.env.NEXT_PUBLIC_SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+          "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
         },
         next: { revalidate: 300 }, // زيادة الوقت لـ 5 دقايق
       }
