@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Button, Card, Spinner } from "react-bootstrap";
@@ -11,7 +12,7 @@ const ProductCard = ({ product }) => {
   const [loadingMessage, setLoadingMessage] = useState(""); // State للجملة العشوائية
   const router = useRouter();
 
-  const PRICE_MULTIPLIER = 2;
+  const PRICE_MULTIPLIER = 1;
   const COMPARE_PRICE_MULTIPLIER = 2.0;
 
   const originalPrice = parseFloat(product.variants?.[0]?.price || 0);
@@ -109,6 +110,7 @@ const ProductCard = ({ product }) => {
   };
 
   return (
+    <Link href={`/products/${product.id}`} passHref>
     <Card
       className="h-100 shadow-sm text-center d-flex flex-column position-relative"
       style={{ cursor: "pointer", overflow: "hidden", height: "20rem" }}
@@ -199,6 +201,7 @@ const ProductCard = ({ product }) => {
         </Button>
       </div>
     </Card>
+    </Link>
   );
 };
 
