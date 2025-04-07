@@ -238,6 +238,8 @@ export default function ProductDetails({ product: initialProduct }) {
     }
   }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor, router]);
 
+
+  
   if (loading) {
     return (
       <Container className="mt-5 text-center">

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { createCoinPaymentTransaction } from "../actions/coinpayments"; // استبدل المسار حسب مكان الملف
 import { FaBitcoin } from "react-icons/fa"; // أيقونة للكريبتو
-
+import { sql } from "@vercel/postgres"; // أضفنا المكتبة للاتصال بالـ Database
 
 // Function to validate CSS color
 const isValidCSSColor = (color) => {
@@ -28,6 +28,7 @@ const CheckoutPage = () => {
     city: "",
     postalCode: "",
     country: "",
+    email: "", // أضفنا الإيميل هنا صراحة في الـ state
   });
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -67,16 +68,16 @@ const CheckoutPage = () => {
     .reduce((sum, item) => sum + item.price * item.quantity, 0)
     .toFixed(2);
 
- 
+
+
 
 
 
     const handleOrderConfirmation = async (e) => {
-      e.preventDefault(); // لمنع إعادة تحميل الصفحة
+      e.preventDefault();
     
       const { name, address, city, postalCode, country, email } = shippingInfo;
     
-      // التحقق من أن كل الحقول المطلوبة موجودة
       if (!name || !address || !city || !postalCode || !country || !email) {
         setMessage({
           type: "warning",
@@ -85,7 +86,6 @@ const CheckoutPage = () => {
         return;
       }
     
-      // التحقق من أن البريد الإلكتروني صالح
       const emailPattern = /\S+@\S+\.\S+/;
       if (!emailPattern.test(email)) {
         setMessage({
@@ -95,52 +95,77 @@ const CheckoutPage = () => {
         return;
       }
     
-      // التحقق من أن السعر الإجمالي أكبر من صفر
       if (parseFloat(totalPrice) <= 0) {
         setMessage({
           type: "warning",
-          text: "Cannot confirm order: Total amount must be greater than $0.00.",
+          text: "Total amount must be greater than $0.00.",
         });
         return;
       }
     
       setLoading(true);
     
-      const formData = new FormData();
-      formData.append("amount", totalPrice);
-      formData.append("email", email);  // تأكد من أنك ترسل البريد الإلكتروني هنا
-      formData.append("currency2", selectedCurrency);
-    
       try {
-        const result = await createCoinPaymentTransaction(formData);
+        // 1. إنشاء معاملة CoinPayments أولًا
+        const formData = new FormData();
+        formData.append("amount", totalPrice);
+        formData.append("email", email);
+        formData.append("currency2", selectedCurrency);
     
-        if (result.success) {
-          const orderDetails = {
+        const paymentRes = await createCoinPaymentTransaction(formData);
+    
+        if (!paymentRes.success) {
+          setMessage({ type: "danger", text: paymentRes.error || "Payment failed." });
+          return;
+        }
+    
+        const { txn_id, checkout_url } = paymentRes;
+    
+        // 2. حفظ الطلب في قاعدة البيانات مع txn_id
+        const orderRes = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
             cartItems,
             shippingInfo,
             totalPrice,
-            txn_id: result.txn_id,
-            orderDate: new Date().toISOString(),
-          };
+            txn_id, // نرسله هنا
+            status: "Pending",
+          }),
+        });
     
-          localStorage.setItem("lastOrder", JSON.stringify(orderDetails));
-          localStorage.removeItem("cart");
+        const orderData = await orderRes.json();
     
-          setMessage({
-            type: "success",
-            text: "Payment link generated! Redirecting to CoinPayments...",
-          });
-    
-          setTimeout(() => {
-            window.location.href = result.checkout_url;
-          }, 2000);
-        } else {
+        if (!orderData.success) {
           setMessage({
             type: "danger",
-            text: `Payment failed: ${result.error}`,
+            text: orderData.message || "Failed to save order in database.",
           });
+          return;
         }
+    
+        setMessage({
+          type: "success",
+          text: "Redirecting to CoinPayments...",
+        });
+    
+        localStorage.setItem("lastOrder", JSON.stringify({
+          cartItems,
+          shippingInfo,
+          totalPrice,
+          txn_id,
+        }));
+    
+        localStorage.removeItem("cart");
+    
+        setTimeout(() => {
+          window.location.href = checkout_url;
+        }, 1500);
+    
       } catch (error) {
+        console.error("handleOrderConfirmation error:", error);
         setMessage({
           type: "danger",
           text: "Something went wrong. Please try again.",
@@ -150,8 +175,6 @@ const CheckoutPage = () => {
       }
     };
     
-    
-
 
 
 
@@ -207,83 +230,69 @@ const CheckoutPage = () => {
           </Card>
         </Col>
 
+        <Col md={6} xs={12} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <Card className="shadow-sm" style={{ flex: 1, display: "flex", flexDirection: "column", border: "1px solid #dfe6e9", borderRadius: "12px" }}>
+            <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
+              <h4 className="mb-4" style={{ color: "#2c3e50" }}>Shipping Information</h4>
+              <Form>
+                {["name", "address", "city", "postalCode", "country", "email"].map((field) => (
+                  <Form.Group key={field} className="mb-3" controlId={field}>
+                    <Form.Label style={{ color: "#2c3e50" }}>{field.replace(/([A-Z])/g, " $1")}</Form.Label>
+                    <Form.Control
+                      type={field === "email" ? "email" : "text"}
+                      name={field}
+                      value={shippingInfo[field]}
+                      onChange={handleInputChange}
+                      required
+                      style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
+                    />
+                  </Form.Group>
+                ))}
+              </Form>
+            </Card.Body>
+          </Card>
 
-<Col md={6} xs={12} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-  <Card className="shadow-sm" style={{ flex: 1, display: "flex", flexDirection: "column", border: "1px solid #dfe6e9", borderRadius: "12px" }}>
-    <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
-      <h4 className="mb-4" style={{ color: "#2c3e50" }}>Shipping Information</h4>
-      <Form>
-        {["name", "address", "city", "postalCode", "country"].map((field) => (
-          <Form.Group key={field} className="mb-3" controlId={field}>
-            <Form.Label style={{ color: "#2c3e50" }}>{field.replace(/([A-Z])/g, " $1")}</Form.Label>
-            <Form.Control
-              type="text"
-              name={field}
-              value={shippingInfo[field]}
-              onChange={handleInputChange}
-              required
-              style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
-            />
-          </Form.Group>
-        ))}
-        <Form.Group className="mb-3" controlId="email">
-          <Form.Label style={{ color: "#2c3e50" }}>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            value={shippingInfo.email}
-            onChange={handleInputChange}
-            required
-            style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
-          />
-        </Form.Group>
-      </Form>
-    </Card.Body>
-  </Card>
+          <Card className="shadow-sm" style={{ flexShrink: "0", border: "1px solid #dfe6e9", borderRadius: "12px", backgroundColor: "#f8f9fa" }}>
+            <Card.Body>
+              <div className="mb-4">
+                <h4 className="d-flex align-items-center" style={{ color: "#2c3e50", fontWeight: "600" }}>
+                  <FaBitcoin style={{ marginRight: "10px", color: "#f39c12" }} />
+                  Pay with Crypto – Fast & Secure ⚡️
+                </h4>
+                <p style={{ fontSize: "0.9rem", color: "#636e72", marginTop: "5px" }}>
+                  Choose your preferred cryptocurrency and enjoy smooth, secure blockchain payments.
+                </p>
+              </div>
 
-  <Card className="shadow-sm" style={{ flexShrink: "0", border: "1px solid #dfe6e9", borderRadius: "12px", backgroundColor: "#f8f9fa" }}>
-  <Card.Body>
-    <div className="mb-4">
-      <h4 className="d-flex align-items-center" style={{ color: "#2c3e50", fontWeight: "600" }}>
-        <FaBitcoin style={{ marginRight: "10px", color: "#f39c12" }} />
-        Pay with Crypto – Fast & Secure ⚡️
-      </h4>
-      <p style={{ fontSize: "0.9rem", color: "#636e72", marginTop: "5px" }}>
-        Choose your preferred cryptocurrency and enjoy smooth, secure blockchain payments.
-      </p>
-    </div>
+              <Form.Group className="mb-3" controlId="currencySelect">
+                <Form.Label style={{ color: "#2c3e50" }}>Select Currency</Form.Label>
+                <Form.Select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
+                >
+                  <option value="DAI.BEP20">Dai Token (BSC)</option>
+                  <option value="USDC.BEP20">USD Coin (BSC)</option>
+                  <option value="USDC.SOL">USD Coin (Solana)</option>
+                  <option value="USDC.TRC20">USD Coin (Tron)</option>
+                  <option value="USDT.BEP20">Tether USD (BSC)</option>
+                  <option value="USDT.SOL">Tether USD (Solana)</option>
+                  <option value="USDT.TRC20">Tether USD (Tron)</option>
+                </Form.Select>
+              </Form.Group>
 
-    <Form.Group className="mb-3" controlId="currencySelect">
-      <Form.Label style={{ color: "#2c3e50" }}>Select Currency</Form.Label>
-      <Form.Select
-        value={selectedCurrency}
-        onChange={(e) => setSelectedCurrency(e.target.value)}
-        style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
-      >
-        <option value="DAI.BEP20">Dai Token (BSC)</option>
-        <option value="USDC.BEP20">USD Coin (BSC)</option>
-        <option value="USDC.SOL">USD Coin (Solana)</option>
-        <option value="USDC.TRC20">USD Coin (Tron)</option>
-        <option value="USDT.BEP20">Tether USD (BSC)</option>
-        <option value="USDT.SOL">Tether USD (Solana)</option>
-        <option value="USDT.TRC20">Tether USD (Tron)</option>
-      </Form.Select>
-    </Form.Group>
-
-    <Button
-      variant="primary"
-      className="w-100 mt-3"
-      onClick={handleOrderConfirmation}
-      disabled={loading || parseFloat(totalPrice) <= 0}
-      style={{ borderRadius: "8px" }}
-    >
-      {loading ? <Spinner animation="border" size="sm" /> : "Confirm & Pay with Crypto"}
-    </Button>
-  </Card.Body>
-</Card>
-
-</Col>
-
+              <Button
+                variant="primary"
+                className="w-100 mt-3"
+                onClick={handleOrderConfirmation}
+                disabled={loading || parseFloat(totalPrice) <= 0}
+                style={{ borderRadius: "8px" }}
+              >
+                {loading ? <Spinner animation="border" size="sm" /> : "Confirm & Pay with Crypto"}
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
       </Row>
     </Container>
   );
