@@ -17,7 +17,7 @@ export default function ProductDetails({ product: initialProduct }) {
 
   const router = useRouter();
 
-  const PRICE_MULTIPLIER = 1;
+  const PRICE_MULTIPLIER = 2;
   const COMPARE_PRICE_MULTIPLIER = 2.0;
 
   const originalPrice = parseFloat(selectedVariant.price || 0);
