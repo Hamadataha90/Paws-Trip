@@ -14,37 +14,40 @@ export async function POST(req) {
       console.log(`Inserting order for product: ${item.title}, price: ${item.price}`);
 
       await sql`
-      INSERT INTO "public"."orders" (
-        variant_id,
-        product_name,
-        price,
-        quantity,
-        color,
-        customer_name,
-        customer_email,
-        customer_address,
-        customer_city,
-        customer_postal_code,
-        customer_country,
-        total_price,
-        status
-      )
-      VALUES (
-        ${item.id},
-        ${item.title},
-        ${item.price},
-        ${item.quantity},
-        ${item.color},
-        ${shippingInfo.name},
-        ${shippingInfo.email},
-        ${shippingInfo.address},
-        ${shippingInfo.city},
-        ${shippingInfo.postalCode},
-        ${shippingInfo.country},
-        ${item.price * item.quantity},
-        'Pending'
-      );
-    `;
+  INSERT INTO "public"."orders" (
+    variant_id,
+    product_name,
+    price,
+    quantity,
+    color,
+    customer_name,
+    customer_email,
+    customer_address,
+    customer_city,
+    customer_postal_code,
+    customer_country,
+    customer_phone,
+    total_price,
+    status
+  )
+  VALUES (
+    ${item.id},
+    ${item.title},
+    ${item.price},
+    ${item.quantity},
+    ${item.color},
+    ${shippingInfo.name},
+    ${shippingInfo.email},
+    ${shippingInfo.address},
+    ${shippingInfo.city},
+    ${shippingInfo.postalCode},
+    ${shippingInfo.country},
+    ${shippingInfo.phone},
+    ${item.price * item.quantity},
+    'Pending'
+  );
+`;
+
     
       console.log(`Order for ${item.title} inserted successfully.`);
     }
