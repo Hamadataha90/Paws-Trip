@@ -5,7 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { createCoinPaymentTransaction } from "../actions/coinpayments"; // استبدل المسار حسب مكان الملف
 import { FaBitcoin } from "react-icons/fa"; // أيقونة للكريبتو
-import { sql } from "@vercel/postgres"; // أضفنا المكتبة للاتصال بالـ Database
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+import { isValidPhoneNumber } from 'libphonenumber-js';
+
 
 // Function to validate CSS color
 const isValidCSSColor = (color) => {
@@ -28,7 +31,8 @@ const CheckoutPage = () => {
     city: "",
     postalCode: "",
     country: "",
-    email: "", // أضفنا الإيميل هنا صراحة في الـ state
+    email: "", 
+    phone: "",
   });
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -72,20 +76,21 @@ const CheckoutPage = () => {
 
 
 
-
+  // دالة لإنشاء معاملة CoinPayments
     const handleOrderConfirmation = async (e) => {
       e.preventDefault();
+      
+      let  { name, address, city, postalCode, country, phone, email } = shippingInfo;
     
-      const { name, address, city, postalCode, country, email } = shippingInfo;
-    
-      if (!name || !address || !city || !postalCode || !country || !email) {
+      if (!name || !address || !city || !postalCode || !country || !phone || !email) {
         setMessage({
           type: "warning",
-          text: "Please fill in all required shipping fields including email.",
+          text: "Please fill in all required shipping fields including email and phone number.",
         });
         return;
       }
     
+      // التحقق من صحة البريد الإلكتروني
       const emailPattern = /\S+@\S+\.\S+/;
       if (!emailPattern.test(email)) {
         setMessage({
@@ -94,6 +99,29 @@ const CheckoutPage = () => {
         });
         return;
       }
+    
+      // التحقق من صحة رقم الهاتف
+      if (!phone) {
+        setMessage({
+          type: "warning",
+          text: "Please enter a phone number.",
+        });
+        return;
+      }
+
+       // إذا كان الرقم لا يبدأ بـ "+" نضيفه
+  if (!phone.startsWith("+")) {
+    phone = "+" + phone;
+  }
+    
+       // تحقق من الرقم بعد إضافة الـ "+"
+  if (!isValidPhoneNumber(phone)) {
+    setMessage({
+      type: "warning",
+      text: "Please enter a valid phone number.",
+    });
+    return;
+  }
     
       if (parseFloat(totalPrice) <= 0) {
         setMessage({
@@ -106,7 +134,7 @@ const CheckoutPage = () => {
       setLoading(true);
     
       try {
-        // 1. إنشاء معاملة CoinPayments أولًا
+        // إنشاء معاملة CoinPayments
         const formData = new FormData();
         formData.append("amount", totalPrice);
         formData.append("email", email);
@@ -121,7 +149,7 @@ const CheckoutPage = () => {
     
         const { txn_id, checkout_url } = paymentRes;
     
-        // 2. حفظ الطلب في قاعدة البيانات مع txn_id
+        // حفظ الطلب في قاعدة البيانات مع txn_id
         const orderRes = await fetch("/api/orders", {
           method: "POST",
           headers: {
@@ -235,20 +263,44 @@ const CheckoutPage = () => {
             <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
               <h4 className="mb-4" style={{ color: "#2c3e50" }}>Shipping Information</h4>
               <Form>
-                {["name", "address", "city", "postalCode", "country", "email"].map((field) => (
-                  <Form.Group key={field} className="mb-3" controlId={field}>
-                    <Form.Label style={{ color: "#2c3e50" }}>{field.replace(/([A-Z])/g, " $1")}</Form.Label>
-                    <Form.Control
-                      type={field === "email" ? "email" : "text"}
-                      name={field}
-                      value={shippingInfo[field]}
-                      onChange={handleInputChange}
-                      required
-                      style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
-                    />
-                  </Form.Group>
-                ))}
-              </Form>
+  {["name", "address", "city", "postalCode", "country", "email"].map((field) => (
+    <Form.Group key={field} className="mb-3" controlId={field}>
+      <Form.Label style={{ color: "#2c3e50" }}>
+        {field.replace(/([A-Z])/g, " $1")}
+      </Form.Label>
+      <Form.Control
+        type={field === "email" ? "email" : "text"}
+        name={field}
+        value={shippingInfo[field]}
+        onChange={handleInputChange}
+        required
+        style={{
+          borderColor: "#ced6e0",
+          borderRadius: "8px",
+          transition: "border-color 0.3s ease",
+        }}
+      />
+    </Form.Group>
+  ))}
+
+  <Form.Group className="mb-3" controlId="phone">
+    <Form.Label style={{ color: "#2c3e50" }}>Phone Number</Form.Label>
+    <PhoneInput
+      country={"eg"}
+      value={shippingInfo.phone}
+      onChange={(phone) => setShippingInfo({ ...shippingInfo, phone })}
+      inputStyle={{
+        width: "100%",
+        borderColor: "#ced6e0",
+        borderRadius: "8px",
+      }}
+      inputProps={{
+        name: "phone",
+        required: true,
+      }}
+    />
+  </Form.Group>
+</Form>
             </Card.Body>
           </Card>
 
