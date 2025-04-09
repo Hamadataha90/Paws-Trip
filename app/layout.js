@@ -8,6 +8,7 @@ import Footer from "./sharedcomponent/footer";
 import FreeShippingBanner from "./sharedcomponent/FreeShippingBanner";
 import DarkMode from "./utils/dark-mode";
 import ClientZoomEffect from "./sharedcomponent/ClientZoomEffect"; // Import the client-side zoom component
+import { Analytics } from "@vercel/analytics/react"
 
 const cairo = Cairo({
   variable: "--font-cairo",
