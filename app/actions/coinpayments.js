@@ -19,7 +19,7 @@ export async function createCoinPaymentTransaction(formData) {
     currency1: "USD",
     currency2: currency2 || "USDT.TRC20",
     buyer_email: email,
-    ipn_url: "https://humidity-zone.vercel.app/api/ipn",
+    ipn_url: "https://paws-trip.vercel.app/api/ipn",
     format: "json",
   }
 
