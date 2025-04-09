@@ -320,7 +320,7 @@ export default function ProductDetails({ product: initialProduct }) {
             {product.shippingLocation && (
               <div className="d-flex align-items-center gap-2 bg-light border rounded px-3 py-1">
                 <GeoAltFill size={20} className="text-primary" />
-                <p className="fw-semibold text-dark fs-6 m-0">SHIP FROM: {product.shippingLocation}</p>
+                <p className="fw-semibold text-dark fs-6 m-0">SHIPS FROM: {product.shippingLocation}</p>
               </div>
             )}
           </div>
