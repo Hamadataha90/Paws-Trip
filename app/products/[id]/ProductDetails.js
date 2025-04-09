@@ -361,6 +361,7 @@ export default function ProductDetails({ product: initialProduct }) {
               <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#ff6600", textTransform: "uppercase", textAlign: "center" }}>
                 Loved by Thousands, Trusted by You!
               </h2>
+             <hr style={{ border: "1px solid #ff6600", margin: "10px 0" }} />
               <div dangerouslySetInnerHTML={{ __html: cleanDescription }} />
             </div>
           </div>
