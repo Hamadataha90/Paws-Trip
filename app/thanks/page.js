@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const ThanksPage = () => {
@@ -40,4 +40,12 @@ const ThanksPage = () => {
   )
 }
 
-export default ThanksPage
+const ThanksPageWithSuspense = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <ThanksPage />
+    </Suspense>
+  )
+}
+
+export default ThanksPageWithSuspense
