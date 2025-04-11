@@ -28,7 +28,7 @@ export default async function ProductsPage() {
       {!error && products.length > 0 && (
         <Row className="g-4">
           {products.map((product) => (
-            <Col key={product.id} xs={12} sm={6} md={4}>
+            <Col key={product.id} xs={12} sm={6} md={3} lg={3}>
               <ProductCard product={product} />
             </Col>
           ))}

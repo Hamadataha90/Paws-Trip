@@ -3,14 +3,12 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import { sql } from '@vercel/postgres';
 
-// منع Next.js من تحويل body
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// دالة لجلب الـ Raw Body
 function getRawBody(req) {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -31,36 +29,16 @@ export default async function handler(req, res) {
     return res.status(405).send('Method Not Allowed');
   }
 
-  // التأكد من أن POSTGRES_URL موجود
-  const connectionString = process.env.POSTGRES_URL;
-
-  if (!connectionString) {
-    return res.status(500).send('POSTGRES_URL is not defined');
-  }
-
-  // اختبار الاتصال بقاعدة البيانات
-  try {
-    const testConnection = await sql`SELECT NOW();`; // اختبار استعلام بسيط
-    console.log('Connected to PostgreSQL:', testConnection);
-  } catch (error) {
-    console.error('Error connecting to PostgreSQL:', error);
-    return res.status(500).send('Database connection failed');
-  }
-
-  // الحصول على البيانات الخام من الـ IPN
   const rawBody = await getRawBody(req);
-
-  // الحصول على الـ HMAC من الهيدر
   const hmacHeader = req.headers['hmac'];
   const privateKey = process.env.COINPAYMENTS_PRIVATE_KEY;
 
-  // تحقق من صحة الـ HMAC باستخدام الـ private key
   const hmac = crypto
     .createHmac('sha512', privateKey)
     .update(rawBody)
     .digest('hex');
 
-  // إذا كانت الـ HMAC المتبادلة صحيحة
+  // التحقق من صحة HMAC
   if (hmac !== hmacHeader) {
     return res.status(400).send('Invalid HMAC');
   }
@@ -70,28 +48,50 @@ export default async function handler(req, res) {
   const buyerEmail = ipnData.get('buyer_email');
   const paymentStatus = parseInt(ipnData.get('status'), 10);
 
-  // ✅ تحديث الحالة فقط إذا كانت العملية لم تُعالج من قبل
+  // تحديث حالة الطلب بناءً على حالة الدفع
   if (paymentStatus >= 100) {
     try {
       const result = await sql`
-        UPDATE orders
-        SET txn_id = ${txnId}, status = 'Completed'
-        WHERE txn_id IS NULL AND customer_email = ${buyerEmail} AND status = 'Pending'
+        UPDATE "public"."orders"
+        SET status = 'Completed'
+        WHERE transaction_id = ${txnId} AND status = 'Pending'
       `;
       console.log(`Updated ${result.rowCount} rows for txn_id: ${txnId}`);
+      if (result.rowCount === 0) {
+        console.warn(`No rows updated for txn_id: ${txnId}. Check if it exists or status is already updated.`);
+      }
+
+      // بعد تحديث قاعدة البيانات، إعادة التوجيه إلى صفحة الشكر
+      res.writeHead(302, {
+        Location: `https://paws-trip.vercel.app/thanks?txn_id=${txnId}&status=completed`
+      });
+      res.end();
+
     } catch (error) {
       console.error('Error updating database:', error.message);
     }
+  } else if (paymentStatus === -1) {
+    // حالة الإلغاء أو الفشل
+    try {
+      const result = await sql`
+        UPDATE "public"."orders"
+        SET status = 'Cancelled'
+        WHERE transaction_id = ${txnId} AND status = 'Pending'
+      `;
+      console.log(`Cancelled ${result.rowCount} rows for txn_id: ${txnId}`);
+    } catch (error) {
+      console.error('Error cancelling order:', error.message);
+    }
   }
 
-  // 🧪 لتتبع المدفوعات
+  // سجل البيانات الواردة في IPN
   try {
     fs.appendFileSync('payment_logs.txt', JSON.stringify(Object.fromEntries(ipnData)) + '\n');
   } catch (error) {
     console.error('Failed to write to payment_logs.txt:', error.message);
   }
 
-  // 📧 إرسال بريد التأكيد
+  // إرسال إيميل التأكيد
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -103,8 +103,10 @@ export default async function handler(req, res) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: buyerEmail,
-    subject: 'Payment Confirmation',
-    text: `Your payment with transaction ID ${txnId} has been successfully processed.`,
+    subject: paymentStatus >= 100 ? 'Payment Confirmation' : 'Payment Status Update',
+    text: paymentStatus >= 100
+      ? `Your payment with transaction ID ${txnId} has been successfully processed.`
+      : `Your payment with transaction ID ${txnId} was not completed. Status: ${paymentStatus}`,
   };
 
   try {

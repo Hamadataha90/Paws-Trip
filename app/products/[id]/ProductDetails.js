@@ -320,7 +320,7 @@ export default function ProductDetails({ product: initialProduct }) {
             {product.shippingLocation && (
               <div className="d-flex align-items-center gap-2 bg-light border rounded px-3 py-1">
                 <GeoAltFill size={20} className="text-primary" />
-                <p className="fw-semibold text-dark fs-6 m-0">SHIP FROM: {product.shippingLocation}</p>
+                <p className="fw-semibold text-dark fs-6 m-0">SHIPS FROM: {product.shippingLocation}</p>
               </div>
             )}
           </div>
@@ -361,6 +361,10 @@ export default function ProductDetails({ product: initialProduct }) {
               <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#ff6600", textTransform: "uppercase", textAlign: "center" }}>
                 Loved by Thousands, Trusted by You!
               </h2>
+              <br />
+              <hr style={{ border: "1px solid #ff6600", margin: "10px 0" }} />
+              <br />
+              <br />
               <div dangerouslySetInnerHTML={{ __html: cleanDescription }} />
             </div>
           </div>

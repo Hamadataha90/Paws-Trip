@@ -6,21 +6,23 @@ import axios from 'axios'
 export async function createCoinPaymentTransaction(formData) {
   const amount = formData.get('amount')
   const email = formData.get('email')
-  const currency2 = formData.get("currency2")
+  const currency2 = formData.get('currency2') || 'USDT.TRC20'
 
   const publicKey = process.env.COINPAYMENTS_PUBLIC_KEY
   const privateKey = process.env.COINPAYMENTS_PRIVATE_KEY
 
   const payload = {
-    version: "1",
-    cmd: "create_transaction",
+    version: '1',
+    cmd: 'create_transaction',
     key: publicKey,
     amount,
-    currency1: "USD",
-    currency2: currency2 || "USDT.TRC20",
+    currency1: 'USD',
+    currency2,
     buyer_email: email,
-    ipn_url: "https://paws-trip.vercel.app/api/ipn",
-    format: "json",
+    ipn_url: 'https://paws-trip.vercel.app/api/ipn',
+    success_url: `https://paws-trip.vercel.app/thanks?txn_id=${result.result.txn_id}&status=completed`,
+    cancel_url: 'https://paws-trip.vercel.app/checkout',
+    format: 'json',
   }
 
   const encodedPayload = new URLSearchParams(payload).toString()
@@ -51,10 +53,16 @@ export async function createCoinPaymentTransaction(formData) {
         txn_id: result.result.txn_id,
       }
     } else {
-      return { success: false, error: result.error }
+      return {
+        success: false,
+        error: result.error,
+      }
     }
   } catch (error) {
     console.error('CoinPayments Error:', error.response?.data || error.message)
-    return { success: false, error: 'Something went wrong with the payment.' }
+    return {
+      success: false,
+      error: 'Something went wrong with the payment.',
+    }
   }
 }
