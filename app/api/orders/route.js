@@ -68,13 +68,6 @@ export async function POST(req) {
       );
     }
 
-    console.log("Received cartItems:", cartItems);
-    console.log("Received shippingInfo:", shippingInfo);
-    console.log("Received totalPrice:", totalPrice);
-    console.log("Received selectedCurrency:", selectedCurrency);
-    console.log("Received txn_id:", txn_id);
-    console.log("Received status:", status);
-
     let currency = String(selectedCurrency || 'USD');
     if (!currency || currency.trim() === '') {
       console.warn('Currency is empty, defaulting to USD');
@@ -86,11 +79,9 @@ export async function POST(req) {
     let successfulInserts = 0;
 
     for (const item of cartItems) {
-      console.log(`Inserting order for product: ${item.title}, price: ${item.price}`);
       const inserted = await insertOrder(item, shippingInfo, currency, txn_id, orderStatus);
       if (inserted) {
         successfulInserts++;
-        console.log(`Order for ${item.title} inserted successfully.`);
       }
     }
 
@@ -117,7 +108,7 @@ export async function POST(req) {
       JSON.stringify({
         success: false,
         message: 'Failed to process order',
-        error: error.message || 'Unknown error'
+        error: error.message || 'Unknown error',
       }),
       { status: 500 }
     );
