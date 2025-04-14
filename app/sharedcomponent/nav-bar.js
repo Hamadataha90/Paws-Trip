@@ -3,11 +3,16 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // استيراد useRouter
 import { Navbar, Nav, Container, Button, Badge, Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { FaSearchPlus, FaSearchMinus } from "react-icons/fa"; // استيراد أيقونات زيادة ونقصان الزوم
+import ClientZoomEffect from "./ClientZoomEffect"; // استيراد مكون الزوم
+
+
 
 const NavBar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(60); // قيمة الزوم الافتراضية
   const router = useRouter(); // استخدام useRouter
 
   useEffect(() => {
@@ -32,6 +37,16 @@ const NavBar = () => {
   // دالة للتنقل
   const handleNavigation = (path) => {
     router.push(path); // التنقل باستخدام router.push
+  };
+
+   // دالة لزيادة الزوم
+   const increaseZoom = () => {
+    setZoomLevel((prevZoom) => Math.min(prevZoom + 10, 200)); // لا يزيد عن 200%
+  };
+
+  // دالة لتقليل الزوم
+  const decreaseZoom = () => {
+    setZoomLevel((prevZoom) => Math.max(prevZoom - 10, 20)); // لا يقل عن 20%
   };
 
   // دالة لزيادة الكمية
@@ -77,6 +92,10 @@ const NavBar = () => {
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
+    <>
+
+    <ClientZoomEffect zoomLevel={zoomLevel} /> {/* هنا قمنا بتمرير قيمة الزوم */}
+
     <Navbar expand="lg" bg="light" variant="light" className="shadow-sm sticky-top" style={{ backgroundColor: "#f8f9fa" }}>
       <Navbar.Brand
         onClick={() => handleNavigation("/")}
@@ -320,28 +339,36 @@ const NavBar = () => {
           </Dropdown.Menu>
         </Dropdown>
 
-        <Button
-          onClick={() => handleNavigation("/login")} // تعديل هنا كمان
-          variant="outline-primary"
-          className="ms-3"
-          style={{
-            borderColor: "#3498db",
-            color: "#3498db",
-            transition: "all 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#3498db";
-            e.target.style.color = "#fff";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "transparent";
-            e.target.style.color = "#3498db";
-          }}
-        >
-          Login
-        </Button>
+        {/* Zoom Controls */}
+        <div className="d-flex align-items-center ms-3">
+            <Button
+              variant="outline-dark"
+              onClick={decreaseZoom}
+              style={{
+                borderColor: "#16a085",
+                color: "#16a085",
+                marginRight: "10px",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <FaSearchMinus />
+            </Button>
+            <Button
+              variant="outline-dark"
+              onClick={increaseZoom}
+              style={{
+                borderColor: "#16a085",
+                color: "#16a085",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <FaSearchPlus />
+            </Button>
+          </div>
+          
       </Navbar.Collapse>
     </Navbar>
+    </>
   );
 };
 

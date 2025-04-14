@@ -1,20 +1,19 @@
-// app/sharedcomponent/ClientZoomEffect.js
 "use client"; // This is a client-side component
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const ClientZoomEffect = () => {
+const ClientZoomEffect = ({ zoomLevel = 60 }) => {
   useEffect(() => {
-    let zoomLevel = "70%";
-    document.body.style.zoom = zoomLevel;
+    // تطبق الزوم الجديد بناءً على القيمة التي تم تمريرها
+    document.body.style.zoom = `${zoomLevel}%`;
 
     // Firefox fix: use transform scale instead
     if (navigator.userAgent.toLowerCase().includes("firefox")) {
-      document.body.style.transform = "scale(0.70)";
+      document.body.style.transform = `scale(${zoomLevel / 100})`;  // تحويل القيمة إلى scale
       document.body.style.transformOrigin = "top";
-      document.body.style.width = "133.33%"; // Compensate for scaling
+      document.body.style.width = `${100 / (zoomLevel / 100)}%`; // تعويض الزوم
     }
-  }, []);
+  }, [zoomLevel]); // يتغير كلما تغيرت قيمة الزوم
 
   return null; // This component does not render anything itself
 };

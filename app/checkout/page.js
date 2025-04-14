@@ -203,64 +203,74 @@ const CheckoutPage = () => {
 
       <Row className="checkout">
         <Col md={6} xs={12}>
-          <Card className="shadow-sm mb-4 h-100 d-flex flex-column" style={{ border: "1px solid #ecf0f1" }}>
-            <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
-              <h4 className="mb-4" style={{ color: "#1a3c34" }}>Order Summary</h4>
-              {cartItems.length > 0 ? (
-                <Row>
-                  {cartItems.map((item) => (
-                    <Col
-                      md={4}
-                      xs={4}
-                      key={item.id}
-                      className="mb-3 text-center d-flex flex-column align-items-center"
-                    >
-                      <Card className="p-2">
-                        <Card.Img
-                          src={item.image}
-                          alt={item.title}
-                          style={{ width: "100%", borderRadius: "8px" }}
-                        />
-                        <h5 className="mt-2" style={{ color: "#1a3c34", fontSize: "1.1rem" }}>
-                          {item.title}
-                        </h5>
-                        <p style={{ margin: "0", color: "#7f8c8d" }}>
-                          <strong>Price:</strong> ${item.price.toFixed(2)}
-                        </p>
-                        <p style={{ margin: "0", color: "#7f8c8d" }}>
-                          <strong>Qty:</strong> {item.quantity}
-                        </p>
-                        <p style={{ margin: "0", color: "#e74c3c" }}>
-                          <strong>Total:</strong> ${(item.price * item.quantity).toFixed(2)}
-                        </p>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              ) : (
-                <p className="text-center" style={{ color: "#7f8c8d" }}>
-                  No items in your cart.
+        <Card className="shadow-sm mb-4 h-100 d-flex flex-column" style={{ border: "1px solid #ecf0f1", position: "relative" }}>
+  <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
+    <h4 className="mb-4" style={{ color: "#1a3c34" }}>Order Summary</h4>
+    {cartItems.length > 0 ? (
+      <Row>
+        {cartItems.map((item) => (
+          <Col
+            md={4}
+            xs={6}
+            key={item.id}
+            className="mb-3 d-flex"
+          >
+            <Card className="p-2 w-100 d-flex flex-column justify-content-between" style={{ minHeight: "280px" }}>
+              <Card.Img
+                src={item.image}
+                alt={item.title}
+                style={{
+                  width: "100%",
+                  height: "120px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                }}
+              />
+              <div className="mt-2 text-center">
+                <h5 style={{ color: "#1a3c34", fontSize: "1rem", marginBottom: "0.5rem" }}>
+                  {item.title.length > 25 ? item.title.slice(0, 25) + "..." : item.title}
+                </h5>
+                <p style={{ margin: "0", color: "#7f8c8d" }}>
+                  <strong>Price:</strong> ${item.price.toFixed(2)}
                 </p>
-              )}
-            </Card.Body>
-            <div
-              style={{
-                padding: "15px",
-                borderTop: "1px solid #ecf0f1",
-                background: "#f8f9fa",
-                textAlign: "center",
-                boxShadow: "0px -4px 10px rgba(0, 0, 0, 0.1)",
-                position: "absolute",
-                bottom: "0",
-                width: "100%",
-              }}
-            >
-              <h4 style={{ color: "#e74c3c", marginBottom: "0" }}>
-                Grand Total: ${finalPrice !== null ? finalPrice : totalPrice}
-                {discountRate > 0 && ` (after ${discountRate * 100}% off)`}
-              </h4>
-            </div>
-          </Card>
+                <p style={{ margin: "0", color: "#7f8c8d" }}>
+                  <strong>Qty:</strong> {item.quantity}
+                </p>
+                <p style={{ margin: "0", color: "#e74c3c" }}>
+                  <strong>Total:</strong> ${(item.price * item.quantity).toFixed(2)}
+                </p>
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    ) : (
+      <p className="text-center" style={{ color: "#7f8c8d" }}>
+        No items in your cart.
+      </p>
+    )}
+  </Card.Body>
+
+  {/* Grand total footer */}
+  <div
+    style={{
+      padding: "15px",
+      borderTop: "1px solid #ecf0f1",
+      background: "#f8f9fa",
+      textAlign: "center",
+      boxShadow: "0px -4px 10px rgba(0, 0, 0, 0.1)",
+      position: "absolute",
+      bottom: "0",
+      width: "100%",
+    }}
+  >
+    <h4 style={{ color: "#e74c3c", marginBottom: "0" }}>
+      Grand Total: ${finalPrice !== null ? finalPrice : totalPrice}
+      {discountRate > 0 && ` (after ${discountRate * 100}% off)`}
+    </h4>
+  </div>
+</Card>
+
         </Col>
 
         <Col md={6} xs={12} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>

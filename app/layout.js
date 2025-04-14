@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme={initialTheme} style={{ colorScheme: initialTheme }}>
       <body className={cairo.variable}>
         <DarkMode initialTheme={initialTheme}>
-          <ClientZoomEffect /> {/* Add the client-side zoom effect */}
+          <ClientZoomEffect zoomLevel={60} / > 
           <NavBar />
           <FreeShippingBanner
             title="Free Shipping on all Orders"
