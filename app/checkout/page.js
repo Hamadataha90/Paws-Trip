@@ -78,6 +78,7 @@ const CheckoutPage = () => {
     setDiscountRate(rate);
   };
 
+  
   const handleOrderConfirmation = async (e) => {
     e.preventDefault();
     let { name, address, city, postalCode, country, phone, email } = shippingInfo;
@@ -140,6 +141,7 @@ const CheckoutPage = () => {
           txn_id,
           selectedCurrency,
           status: parseFloat(priceToUse) === 0 ? "Completed" : "Pending",
+          discountRate,
         }),
       });
 
