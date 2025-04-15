@@ -35,7 +35,7 @@ const CheckoutPage = () => {
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [selectedCurrency, setSelectedCurrency] = useState("USDT.TRC20");
+  const [selectedCurrency, setSelectedCurrency] = useState("LTCT");
   const [finalPrice, setFinalPrice] = useState(null); // السعر النهائي بعد الخصم
   const [discountRate, setDiscountRate] = useState(0); // نسبة الخصم
   const paypalRendered = useRef(false);
@@ -347,8 +347,8 @@ const CheckoutPage = () => {
                   <option value="DAI.BEP20">Dai Token (BSC)</option>
                   <option value="USDT.TRC20">Tether USD (Tron)</option>
                   <option value="USDT.BEP20">Tether USD (BSC)</option>
-                <option value="USDT.SOL">Tether USD (Solana)</option>                 
-                <option value="LTCT"> Litecoin Testnet (Solana)</option>                 
+                  <option value="LTCT">Litecoin Testnet (LTCT)</option>                 
+                                 
                 </Form.Select>
               </Form.Group>
 
