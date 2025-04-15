@@ -25,7 +25,7 @@ const Slider = ({ products, title = "", chunkSize = 3 }) => {
             <Carousel.Item key={index}>
               <Row className="justify-content-center g-4">
                 {chunk.map((product) => (
-                  <Col key={product.id} xs={12} sm={6} md={4}>
+                  <Col key={product.id} xs={4} sm={4} md={4}>
                     <ProductCard product={product} />
                   </Col>
                 ))}
