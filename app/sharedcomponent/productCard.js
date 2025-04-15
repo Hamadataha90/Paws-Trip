@@ -69,6 +69,7 @@ const ProductCard = ({ product }) => {
         price: parseFloat(adjustedPrice),
         image: images[0].src,
         color: color,
+        sku: product.variants[0].sku // عدّلنا هنا
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);

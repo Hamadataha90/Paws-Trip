@@ -181,6 +181,7 @@ export default function ProductDetails({ product: initialProduct }) {
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
+        sku: selectedVariant.sku // أضف sku
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -219,6 +220,7 @@ export default function ProductDetails({ product: initialProduct }) {
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
+        sku: selectedVariant.sku // أضف sku
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
