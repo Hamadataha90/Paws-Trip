@@ -340,18 +340,15 @@ const CheckoutPage = () => {
                   style={{ borderColor: "#ced6e0", borderRadius: "8px", transition: "border-color 0.3s ease" }}
                 >
                   <option value="TRX">TRON TRX</option>
-                  <option value="USDT.TRC20">Tether USD (Tron)</option>
+                  
                   <option value="USDC.TRC20">USD Coin (Tron)</option>
                   <option value="USDC.BEP20">USD Coin (BSC)</option>
-                  <option value="USDT.BEP20">Tether USD (BSC)</option>
-                  <option value="DAI.BEP20">Dai Token (BSC)</option>
                   <option value="USDC.SOL">USD Coin (Solana)</option>
+                  <option value="DAI.BEP20">Dai Token (BSC)</option>
+                  <option value="USDT.TRC20">Tether USD (Tron)</option>
+                  <option value="USDT.BEP20">Tether USD (BSC)</option>
                 <option value="USDT.SOL">Tether USD (Solana)</option>                 
-                  <option value="USDT.ETH">Tether USD (Ethereum)</option>
-                  <option value="USDC.ETH">USD Coin (Ethereum)</option>
-                  <option value="BTC">Bitcoin</option>
-                  <option value="ETH">Ethereum</option>
-                  <option value="LTC">Litecoin</option>
+                <option value="LTCT"> Litecoin Testnet (Solana)</option>                 
                 </Form.Select>
               </Form.Group>
 
