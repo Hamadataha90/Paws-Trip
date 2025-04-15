@@ -84,7 +84,7 @@ export default function ProductDetails({ product: initialProduct }) {
     const notification = document.createElement("div");
     notification.textContent = message;
     notification.style.cssText = `
-      position: fixed; top: 60px; right: 20px; background: ${bgColor}; color: white;
+      position: fixed; top: 60px; right: 160px; background: ${bgColor}; color: white;
       padding: 10px 20px; border-radius: 5px; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     `;
     document.body.appendChild(notification);
@@ -277,7 +277,7 @@ export default function ProductDetails({ product: initialProduct }) {
           <Spinner animation="border" variant="light" style={{ width: "3rem", height: "3rem" }} />
         </div>
       )}
-      <Row className="align-items-start">
+      <Row className="align-items-start justify-content-around">
         <Col xs={12} md={4} style={isSticky ? { position: "sticky", top: "0", height: "100vh", overflowY: "overlay" } : {}}>
           <div className="text-center">
             <div style={{ width: "100%", maxHeight: "800px", overflow: "hidden" }}>
@@ -307,7 +307,7 @@ export default function ProductDetails({ product: initialProduct }) {
           </div>
         </Col>
 
-        <Col md={6} xs={12} className="px-4 py-2 col-details">
+        <Col md={6} xs={12}  className="px-4 py-2 col-details">
           <h1 className="mb-2">{product.title}</h1>
           <Badge bg="secondary" className="mb-3">{product.product_type || "General"}</Badge>
 

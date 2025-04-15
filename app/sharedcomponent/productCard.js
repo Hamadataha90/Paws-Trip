@@ -44,7 +44,7 @@ const ProductCard = ({ product }) => {
     const notification = document.createElement("div");
     notification.textContent = message;
     notification.style.cssText = `
-      position: fixed; top: 60px; right: 20px; background: ${bgColor}; color: white;
+      position: fixed; top: 60px; right: 160px; background: ${bgColor}; color: white;
       padding: 10px 20px; border-radius: 5px; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     `;
     document.body.appendChild(notification);

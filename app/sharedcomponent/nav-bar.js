@@ -119,10 +119,15 @@ const NavBar = () => {
               onMouseEnter={(e) => (e.target.style.color = "#16a085")}
               onMouseLeave={(e) => (e.target.style.color = "#1a3c34")}
             >
-              {["Home", "Products", "About", "Contact Us"][idx]}
+              {["Home", "Products", "Orders"][idx]}
             </Nav.Link>
           ))}
         </Nav>
+
+
+
+         
+
 
         {/* Cart Dropdown */}
         <Dropdown show={showCart} onToggle={(isOpen) => setShowCart(isOpen)} align="end">
@@ -339,8 +344,9 @@ const NavBar = () => {
           </Dropdown.Menu>
         </Dropdown>
 
-        {/* Zoom Controls */}
-        <div className="d-flex align-items-center ms-3">
+
+       {/* Zoom Controls */}
+        <div className="d-flex align-items-center ms-3 ">
             <Button
               variant="outline-dark"
               onClick={decreaseZoom}
@@ -351,8 +357,10 @@ const NavBar = () => {
                 transition: "all 0.3s ease",
               }}
             >
+              
               <FaSearchMinus />
             </Button>
+            <span style={{ color: "#1a3c34", fontWeight: "bold" }}> {zoomLevel}%</span>
             <Button
               variant="outline-dark"
               onClick={increaseZoom}
@@ -362,9 +370,11 @@ const NavBar = () => {
                 transition: "all 0.3s ease",
               }}
             >
+              
               <FaSearchPlus />
             </Button>
           </div>
+       
           
       </Navbar.Collapse>
     </Navbar>
