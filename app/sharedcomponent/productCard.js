@@ -114,11 +114,11 @@ const ProductCard = ({ product }) => {
     <Link href={`/products/${product.id}`} passHref>
     <Card
       className="h-100 shadow-sm text-center d-flex flex-column position-relative"
-      style={{ cursor: "pointer", overflow: "hidden", height: "20rem" }}
+      style={{ cursor: "pointer", overflow: "hidden", height: "25rem" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div style={{ position: "relative", width: "100%", height: "20rem" }}>
+      <div style={{ position: "relative", width: "100%", height: "25rem" }}>
         <Card.Img
           variant="top"
           src={images[0]?.src || "https://via.placeholder.com/300"}
@@ -164,7 +164,7 @@ const ProductCard = ({ product }) => {
             backgroundColor: "rgba(255, 255, 255, 0.8)",
             opacity: hovered ? 1 : 0,
             transition: "opacity 0.4s ease-in-out",
-            padding: "10px",
+            padding: "7px",
             textAlign: "center",
           }}
         >
@@ -180,7 +180,7 @@ const ProductCard = ({ product }) => {
       <div
         style={{
           position: "absolute",
-          bottom: "15px",
+          bottom: "30px",
           width: "100%",
           display: "flex",
           justifyContent: "center",

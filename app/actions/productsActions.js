@@ -1,6 +1,6 @@
 "use server";
 
-const SHOPIFY_API_BASE = "https://humidityzone.myshopify.com/admin/api/2023-10";
+const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE;
 const SHOPIFY_HEADERS = {
   "Content-Type": "application/json",
   "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN, // متغير سري

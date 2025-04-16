@@ -5,17 +5,20 @@ export const fetchFeaturedProducts = cache(async () => {
   try {
     console.time("Fetch Featured Products");
 
-    const response = await fetch(
-      "https://humidityzone.myshopify.com/admin/api/2023-10/products.json?tags=featured&fields=id,title,images,variants",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
-        },
-        next: { revalidate: 300 }, // زيادة الوقت لـ 5 دقايق
-      }
-    );
+   'use server';
+
+const response = await fetch(
+  `${process.env.SHOPIFY_API_BASE}/products.json?tags=featured&fields=id,title,images,variants`,
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+    },
+    next: { revalidate: 300 }, // زيادة الوقت لـ 5 دقايق
+  }
+);
+
 
     if (!response.ok) {
       const errorBody = await response.text();

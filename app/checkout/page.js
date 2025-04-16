@@ -171,7 +171,7 @@ const CheckoutPage = () => {
       if (parseFloat(priceToUse) > 0) {
         setTimeout(() => { window.location.href = checkout_url; }, 1500);
       } else {
-        setTimeout(() => { router.push("/thank-you"); }, 1500);
+        setTimeout(() => { router.push("/thanks"); }, 1500);
       }
     } catch (error) {
       console.error("handleOrderConfirmation error:", error);
@@ -180,6 +180,10 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+
+
+
+  
 
   if (!cartItems.length && !message) {
     return (
@@ -347,6 +351,7 @@ const CheckoutPage = () => {
                   <option value="DAI.BEP20">Dai Token (BSC)</option>
                   <option value="USDT.TRC20">Tether USD (Tron)</option>
                   <option value="USDT.BEP20">Tether USD (BSC)</option>
+                  <option value="USDT.SOL">Tether USD (Solana)</option>
                   <option value="LTCT">Litecoin Testnet (LTCT)</option>                 
                                  
                 </Form.Select>
