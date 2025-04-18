@@ -3,7 +3,7 @@ import { createHmac } from 'crypto';
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 
-const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE;
+const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE || 'https://humidityzone.myshopify.com/admin/api/2023-10';
 const SHOPIFY_HEADERS = {
   'Content-Type': 'application/json',
   'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN
@@ -16,15 +16,17 @@ export async function POST(req) {
     const receivedHmac = headers.get('hmac');
     const secret = process.env.IPN_SECRET;
 
+    console.log('📥 Received IPN request');
+
     if (!secret) {
-      console.error('❌ IPN_SECRET is not defined.');
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+      console.error('❌ IPN_SECRET is not defined');
+      return NextResponse.json({ error: 'Internal server error: IPN_SECRET missing' }, { status: 500 });
     }
 
     const hmac = createHmac('sha512', secret).update(bodyText).digest('hex');
 
     if (receivedHmac !== hmac) {
-      console.error('❌ Invalid HMAC signature. IPN rejected.');
+      console.error('❌ Invalid HMAC signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
     }
 
@@ -36,28 +38,27 @@ export async function POST(req) {
     const amount = params.get('amount1');
     const currency = params.get('currency1');
 
-    console.log('📬 IPN Received:', {
-      txn_id,
-      status,
-      status_text,
-      amount,
-      currency,
-    });
+    console.log('📬 IPN Data:', { txn_id, status, status_text, amount, currency });
+
+    if (!txn_id) {
+      console.error('❌ Missing txn_id in IPN');
+      return NextResponse.json({ error: 'Missing txn_id' }, { status: 400 });
+    }
 
     // تحديث قاعدة البيانات
     if (status >= 100 || status === 2) {
-      // تحديث status لـ Completed
       const updateResult = await sql`
         UPDATE orders
         SET status = 'Completed'
         WHERE txn_id = ${txn_id} AND status = 'Pending'
-        RETURNING *;
+        RETURNING id, customer_name, customer_email, customer_address, customer_city, 
+                 customer_postal_code, customer_country, customer_phone, txn_id;
       `;
       const updatedOrder = updateResult.rows[0];
 
       if (!updatedOrder) {
-        console.error(`❌ No order found for txn_id: ${txn_id}`);
-        return NextResponse.json({ message: 'No order to sync.' }, { status: 200 });
+        console.error(`❌ No order found for txn_id: ${txn_id} or status not Pending`);
+        return NextResponse.json({ error: `No order found for txn_id: ${txn_id}` }, { status: 404 });
       }
 
       console.log(`✅ Order ${txn_id} marked as Completed. Order ID: ${updatedOrder.id}`);
@@ -71,11 +72,18 @@ export async function POST(req) {
       const items = itemsResult.rows;
 
       if (!items.length) {
-        console.error(`❌ No items for order ${updatedOrder.id}`);
-        return NextResponse.json({ message: 'No items to sync.' }, { status: 200 });
+        console.error(`❌ No items found for order ${updatedOrder.id}`);
+        return NextResponse.json({ error: `No items for order ${updatedOrder.id}` }, { status: 400 });
       }
 
       console.log('🛒 Order items:', items);
+
+      // التحقق من variant_id
+      const invalidItems = items.filter(item => !item.variant_id);
+      if (invalidItems.length) {
+        console.error(`❌ Invalid variant_id for items in order ${updatedOrder.id}`, invalidItems);
+        return NextResponse.json({ error: `Invalid variant_id for order ${updatedOrder.id}` }, { status: 400 });
+      }
 
       // إعداد line_items لـ Shopify
       const line_items = items.map(item => ({
@@ -116,12 +124,16 @@ export async function POST(req) {
         }
       };
 
-      console.log('📤 Sending to Shopify:', JSON.stringify(shopifyOrder, null, 2));
+      console.log('📤 Shopify Order Payload:', JSON.stringify(shopifyOrder, null, 2));
 
-      // التحقق من التوكن
+      // التحقق من التوكن و API base
       if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
-        console.error('❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined.');
-        return NextResponse.json({ error: 'Shopify configuration error' }, { status: 500 });
+        console.error('❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined');
+        return NextResponse.json({ error: 'Shopify configuration error: Missing token' }, { status: 500 });
+      }
+      if (!SHOPIFY_API_BASE) {
+        console.error('❌ SHOPIFY_API_BASE is not defined');
+        return NextResponse.json({ error: 'Shopify configuration error: Missing API base' }, { status: 500 });
       }
 
       // إرسال الأوردر لـ Shopify
@@ -134,15 +146,20 @@ export async function POST(req) {
       const responseText = await response.text();
       if (!response.ok) {
         console.error(`❌ Failed to sync order ${updatedOrder.id}: ${response.status} - ${responseText}`);
-        return NextResponse.json({ message: `Failed to sync order: ${responseText}` }, { status: 200 });
+        return NextResponse.json({ error: `Failed to sync order: ${response.status} - ${responseText}` }, { status: 500 });
       }
 
       const shopifyData = JSON.parse(responseText);
-      const shopifyOrderId = shopifyData.order.id;
+      const shopifyOrderId = shopifyData.order?.id;
+
+      if (!shopifyOrderId) {
+        console.error(`❌ No shopify_order_id returned for order ${updatedOrder.id}`);
+        return NextResponse.json({ error: 'No Shopify order ID returned' }, { status: 500 });
+      }
 
       console.log(`✅ Order ${txn_id} synced to Shopify with ID ${shopifyOrderId}`);
 
-      // تحديث shopify_order_id و shopify_synced
+      // تحديث الداتابيز
       await sql`
         UPDATE orders 
         SET shopify_synced = TRUE, 
@@ -157,39 +174,43 @@ export async function POST(req) {
         SET status = 'Cancelled'
         WHERE txn_id = ${txn_id} AND status = 'Pending'
       `;
-      console.log(`❌ Order ${txn_id} marked as Cancelled.`);
+      console.log(`❌ Order ${txn_id} marked as Cancelled`);
     } else {
-      console.log(`⏳ Payment for order ${txn_id} still pending (status: ${status}).`);
+      console.log(`⏳ Payment for order ${txn_id} still pending (status: ${status})`);
     }
 
     // إرسال إيميل
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    if (buyer_email) {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: buyer_email,
-      subject: status >= 100 ? 'Payment Confirmation' : 'Payment Status Update',
-      text: status >= 100
-        ? `Your payment with transaction ID ${txn_id} has been successfully processed.`
-        : `Your payment with transaction ID ${txn_id} was not completed. Status: ${status}`,
-    };
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: buyer_email,
+        subject: status >= 100 ? 'Payment Confirmation' : 'Payment Status Update',
+        text: status >= 100
+          ? `Your payment with transaction ID ${txn_id} has been successfully processed.`
+          : `Your payment with transaction ID ${txn_id} was not completed. Status: ${status}`,
+      };
 
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log('📧 Email sent successfully.');
-    } catch (error) {
-      console.error('📧 Error sending email:', error.message);
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log('📧 Email sent successfully to', buyer_email);
+      } catch (error) {
+        console.error('📧 Error sending email:', error.message);
+      }
+    } else {
+      console.warn('⚠️ No buyer_email provided, skipping email');
     }
 
-    return NextResponse.json({ message: 'IPN received and processed.' }, { status: 200 });
+    return NextResponse.json({ message: 'IPN received and processed' }, { status: 200 });
   } catch (error) {
     console.error('🚨 Error in IPN handler:', error.message);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: `Internal server error: ${error.message}` }, { status: 500 });
   }
 }

@@ -65,7 +65,7 @@ const ProductCard = ({ product }) => {
       const newItem = {
         id: product.variants[0].id,
         quantity: 1,
-        title: product.variants[0].title,
+        title: product.title,
         price: parseFloat(adjustedPrice),
         image: images[0].src,
         color: color,
