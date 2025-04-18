@@ -108,6 +108,7 @@ export async function POST() {
       }
 
       // إرسال الأوردر لـ Shopify
+      console.log(`🚀 Sending order ${order.id} to Shopify`);
       const response = await fetch(`${SHOPIFY_API_BASE}/orders.json`, {
         method: 'POST',
         headers: SHOPIFY_HEADERS,
@@ -115,16 +116,24 @@ export async function POST() {
       });
 
       const responseText = await response.text();
+      console.log(`📥 Shopify response for order ${order.id}: Status ${response.status}, Body: ${responseText}`);
+
       if (!response.ok) {
         console.error(`❌ Failed to sync order ${order.id}: ${response.status} - ${responseText}`);
         continue;
       }
 
-      const shopifyData = JSON.parse(responseText);
-      const shopifyOrderId = shopifyData.order?.id;
+      let shopifyData;
+      try {
+        shopifyData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ Failed to parse Shopify response for order ${order.id}: ${parseError.message}`);
+        continue;
+      }
 
+      const shopifyOrderId = shopifyData.order?.id;
       if (!shopifyOrderId) {
-        console.error(`❌ No shopify_order_id returned for order ${order.id}`);
+        console.error(`❌ No shopify_order_id returned for order ${order.id}. Response:`, responseText);
         continue;
       }
 
