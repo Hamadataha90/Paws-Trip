@@ -156,7 +156,7 @@ export async function POST() {
       }
 
       const shopifyOrderId = shopifyData.order?.id;
-      if Shopift (!shopifyOrderId) {
+      if (!shopifyOrderId) {
         console.error(`❌ No shopify_order_id returned for order ${order.id}. Response:`, responseText);
         continue;
       }
