@@ -36,16 +36,16 @@ export async function POST() {
     for (const order of orders) {
       console.log(`🛠 Processing order ${order.id} (txn_id: ${order.txn_id})`);
 
-      // جلب الـ order_item اللي variant_id بتاعها 47225777389800
+      // جلب الـ order_items
       const itemsResult = await sql`
         SELECT variant_id, product_name, quantity, total_price, sku 
         FROM order_items 
-        WHERE order_id = ${order.id} AND variant_id = '47225777389800' LIMIT 1;
+        WHERE order_id = ${order.id};
       `;
       const items = itemsResult.rows;
 
       if (!items.length) {
-        console.error(`❌ No items found for order ${order.id} with variant_id 47225777389800`);
+        console.error(`❌ No items found for order ${order.id}`);
         continue;
       }
 
@@ -56,59 +56,58 @@ export async function POST() {
         continue;
       }
 
-      // إعداد line_items مع variant_title
+      // إعداد line_items مع properties للون والمقاس
       const line_items = items.map(item => {
-        // استخراج اللون من الـ sku أو product_name
-        let color = 'Unknown';
+        // محاولة استخراج اللون والمقاس من الـ sku
+        let color = '';
+        let size = '';
         if (item.sku) {
           if (item.sku.includes('#')) {
-            color = item.sku.split('#')[1].match(/Grey|Blue|Black|White|Green|Pink|Kaki/i)?.[0] || 'Unknown';
-          } else if (item.sku.includes('175')) {
-            color = 'Green'; // بناءً على الأوردر #1002
+            const skuParts = item.sku.split('#');
+            if (skuParts[1]) {
+              size = skuParts[1].match(/M|S|L|XL|\d+x\d+/i)?.[0] || '';
+              color = skuParts[1].match(/Grey|Blue|Black|White/i)?.[0] || '';
+            }
           }
         }
-        if (item.product_name && item.product_name.match(/Grey|Blue|Black|White|Green|Pink|Kaki/i)) {
-          color = item.product_name.match(/Grey|Blue|Black|White|Green|Pink|Kaki/i)[0];
-        }
-
-        console.log(`🛠 Variant ID: ${item.variant_id}, Color extracted: ${color}`);
 
         return {
           variant_id: item.variant_id,
           quantity: item.quantity,
           price: (item.total_price / item.quantity).toFixed(2),
           sku: item.sku || '',
-          title: item.product_name || 'Transparent Capsule Pet Backpack',
-          variant_title: color === 'Green' ? 'green / United States' : `${color} / United States`
+          title: item.product_name || 'Unknown Product',
+          properties: [
+            { name: 'Color', value: color || 'Unknown' },
+            { name: 'Size', value: size || 'Unknown' }
+          ]
         };
       });
 
-      // إضافة + للـ phone
-      const phone = order.customer_phone ? `+${order.customer_phone.replace(/^\+/, '')}` : '';
-
-      // إعداد الأوردر لـ Shopify
+      // إعداد الأوردر لـ Shopify (مع order wrapper)
       const shopifyOrder = {
         order: {
           email: order.customer_email || 'no-email@example.com',
+          send_receipt: true,
           customer: {
             first_name: order.customer_name?.split(' ')[0] || 'Unknown',
             last_name: order.customer_name?.split(' ').slice(1).join(' ') || '',
             email: order.customer_email || 'no-email@example.com',
-            phone: phone
+            phone: order.customer_phone || ''
           },
           billing_address: {
             address1: order.customer_address || 'Unknown',
             city: order.customer_city || 'Unknown',
             zip: order.customer_postal_code || '00000',
-            country: order.customer_country || 'Egypt',
-            phone: phone
+            country: order.customer_country || 'Unknown',
+            phone: order.customer_phone || ''
           },
           shipping_address: {
             address1: order.customer_address || 'Unknown',
             city: order.customer_city || 'Unknown',
             zip: order.customer_postal_code || '00000',
-            country: order.customer_country || 'Egypt',
-            phone: phone
+            country: order.customer_country || 'Unknown',
+            phone: order.customer_phone || ''
           },
           line_items,
           total_price: items.reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2),
@@ -123,7 +122,7 @@ export async function POST() {
 
       // التحقق من التوكن و API base
       if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
-       (console.error(`❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined for order ${order.id}`);
+        console.error(`❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined for order ${order.id}`);
         continue;
       }
       if (!SHOPIFY_API_BASE) {
