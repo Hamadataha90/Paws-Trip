@@ -56,41 +56,66 @@ export async function POST() {
         continue;
       }
 
-      // إعداد line_items
-      const line_items = items.map(item => ({
-        variant_id: item.variant_id,
-        quantity: item.quantity,
-        price: (item.total_price / item.quantity).toFixed(2),
-        sku: item.sku || ''
-      }));
+      // إعداد line_items مع properties للون والمقاس
+      const line_items = items.map(item => {
+        // محاولة استخراج اللون والمقاس من الـ sku
+        let color = '';
+        let size = '';
+        if (item.sku) {
+          if (item.sku.includes('#')) {
+            const skuParts = item.sku.split('#');
+            if (skuParts[1]) {
+              size = skuParts[1].match(/M|S|L|XL|\d+x\d+/i)?.[0] || '';
+              color = skuParts[1].match(/Grey|Blue|Black|White/i)?.[0] || '';
+            }
+          }
+        }
 
-      // إعداد الأوردر لـ Shopify (بدون order wrapper)
+        return {
+          variant_id: item.variant_id,
+          quantity: item.quantity,
+          price: (item.total_price / item.quantity).toFixed(2),
+          sku: item.sku || '',
+          title: item.product_name || 'Unknown Product',
+          properties: [
+            { name: 'Color', value: color || 'Unknown' },
+            { name: 'Size', value: size || 'Unknown' }
+          ]
+        };
+      });
+
+      // إعداد الأوردر لـ Shopify (مع order wrapper)
       const shopifyOrder = {
-        customer: {
-          first_name: order.customer_name?.split(' ')[0] || 'Unknown',
-          last_name: order.customer_name?.split(' ').slice(1).join(' ') || '',
-          email: order.customer_email || 'no-email@example.com'
-        },
-        billing_address: {
-          address1: order.customer_address || 'Unknown',
-          city: order.customer_city || 'Unknown',
-          zip: order.customer_postal_code || '00000',
-          country: order.customer_country || 'Unknown',
-          phone: order.customer_phone || ''
-        },
-        shipping_address: {
-          address1: order.customer_address || 'Unknown',
-          city: order.customer_city || 'Unknown',
-          zip: order.customer_postal_code || '00000',
-          country: order.customer_country || 'Unknown',
-          phone: order.customer_phone || ''
-        },
-        line_items,
-        total_price: items.reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2),
-        financial_status: 'paid',
-        fulfillment_status: null,
-        source_name: 'web',
-        note: `Order synced from custom checkout. Txn ID: ${order.txn_id}`
+        order: {
+          email: order.customer_email || 'no-email@example.com',
+          send_receipt: true,
+          customer: {
+            first_name: order.customer_name?.split(' ')[0] || 'Unknown',
+            last_name: order.customer_name?.split(' ').slice(1).join(' ') || '',
+            email: order.customer_email || 'no-email@example.com',
+            phone: order.customer_phone || ''
+          },
+          billing_address: {
+            address1: order.customer_address || 'Unknown',
+            city: order.customer_city || 'Unknown',
+            zip: order.customer_postal_code || '00000',
+            country: order.customer_country || 'Unknown',
+            phone: order.customer_phone || ''
+          },
+          shipping_address: {
+            address1: order.customer_address || 'Unknown',
+            city: order.customer_city || 'Unknown',
+            zip: order.customer_postal_code || '00000',
+            country: order.customer_country || 'Unknown',
+            phone: order.customer_phone || ''
+          },
+          line_items,
+          total_price: items.reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2),
+          financial_status: 'paid',
+          fulfillment_status: null,
+          source_name: 'web',
+          note: `Order synced from custom checkout. Txn ID: ${order.txn_id}`
+        }
       };
 
       console.log(`📤 Prepared Shopify order for ${order.id}:`, JSON.stringify(shopifyOrder, null, 2));
@@ -131,7 +156,7 @@ export async function POST() {
       }
 
       const shopifyOrderId = shopifyData.order?.id;
-      if (!shopifyOrderId) {
+      if Shopift (!shopifyOrderId) {
         console.error(`❌ No shopify_order_id returned for order ${order.id}. Response:`, responseText);
         continue;
       }
