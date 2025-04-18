@@ -64,38 +64,36 @@ export async function POST() {
         sku: item.sku || ''
       }));
 
-      // إعداد الأوردر لـ Shopify
+      // إعداد الأوردر لـ Shopify (بدون order wrapper)
       const shopifyOrder = {
-        order: {
-          customer: {
-            first_name: order.customer_name?.split(' ')[0] || 'Unknown',
-            last_name: order.customer_name?.split(' ').slice(1).join(' ') || '',
-            email: order.customer_email || 'no-email@example.com'
-          },
-          billing_address: {
-            address1: order.customer_address || 'Unknown',
-            city: order.customer_city || 'Unknown',
-            zip: order.customer_postal_code || '00000',
-            country: order.customer_country || 'Unknown',
-            phone: order.customer_phone || ''
-          },
-          shipping_address: {
-            address1: order.customer_address || 'Unknown',
-            city: order.customer_city || 'Unknown',
-            zip: order.customer_postal_code || '00000',
-            country: order.customer_country || 'Unknown',
-            phone: order.customer_phone || ''
-          },
-          line_items,
-          total_price: items.reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2),
-          financial_status: 'paid',
-          fulfillment_status: null,
-          source_name: 'web',
-          note: `Order synced from custom checkout. Txn ID: ${order.txn_id}`
-        }
+        customer: {
+          first_name: order.customer_name?.split(' ')[0] || 'Unknown',
+          last_name: order.customer_name?.split(' ').slice(1).join(' ') || '',
+          email: order.customer_email || 'no-email@example.com'
+        },
+        billing_address: {
+          address1: order.customer_address || 'Unknown',
+          city: order.customer_city || 'Unknown',
+          zip: order.customer_postal_code || '00000',
+          country: order.customer_country || 'Unknown',
+          phone: order.customer_phone || ''
+        },
+        shipping_address: {
+          address1: order.customer_address || 'Unknown',
+          city: order.customer_city || 'Unknown',
+          zip: order.customer_postal_code || '00000',
+          country: order.customer_country || 'Unknown',
+          phone: order.customer_phone || ''
+        },
+        line_items,
+        total_price: items.reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2),
+        financial_status: 'paid',
+        fulfillment_status: null,
+        source_name: 'web',
+        note: `Order synced from custom checkout. Txn ID: ${order.txn_id}`
       };
 
-      console.log(`📤 Prepared Shopify order for ${order.id}`);
+      console.log(`📤 Prepared Shopify order for ${order.id}:`, JSON.stringify(shopifyOrder, null, 2));
 
       // التحقق من التوكن و API base
       if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
@@ -116,7 +114,8 @@ export async function POST() {
       });
 
       const responseText = await response.text();
-      console.log(`📥 Shopify response for order ${order.id}: Status ${response.status}, Body: ${responseText}`);
+      const responseHeaders = Object.fromEntries(response.headers.entries());
+      console.log(`📥 Shopify response for order ${order.id}: Status ${response.status}, Headers:`, responseHeaders, `Body: ${responseText}`);
 
       if (!response.ok) {
         console.error(`❌ Failed to sync order ${order.id}: ${response.status} - ${responseText}`);
