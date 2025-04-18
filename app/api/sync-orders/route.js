@@ -36,16 +36,16 @@ export async function POST() {
     for (const order of orders) {
       console.log(`🛠 Processing order ${order.id} (txn_id: ${order.txn_id})`);
 
-      // جلب الـ order_items (منتج واحد بس للتجربة)
+      // جلب الـ order_item اللي variant_id بتاعها 47225777389800
       const itemsResult = await sql`
         SELECT variant_id, product_name, quantity, total_price, sku 
         FROM order_items 
-        WHERE order_id = ${order.id} LIMIT 1;
+        WHERE order_id = ${order.id} AND variant_id = '47225777389800' LIMIT 1;
       `;
       const items = itemsResult.rows;
 
       if (!items.length) {
-        console.error(`❌ No items found for order ${order.id}`);
+        console.error(`❌ No items found for order ${order.id} with variant_id 47225777389800`);
         continue;
       }
 
@@ -58,7 +58,7 @@ export async function POST() {
 
       // إعداد line_items مع variant_title
       const line_items = items.map(item => {
-        // استخراج اللون من الـ sku
+        // استخراج اللون من الـ sku أو product_name
         let color = 'Unknown';
         if (item.sku) {
           if (item.sku.includes('#')) {
@@ -67,6 +67,11 @@ export async function POST() {
             color = 'Green'; // بناءً على الأوردر #1002
           }
         }
+        if (item.product_name && item.product_name.match(/Grey|Blue|Black|White|Green|Pink|Kaki/i)) {
+          color = item.product_name.match(/Grey|Blue|Black|White|Green|Pink|Kaki/i)[0];
+        }
+
+        console.log(`🛠 Variant ID: ${item.variant_id}, Color extracted: ${color}`);
 
         return {
           variant_id: item.variant_id,
@@ -74,7 +79,7 @@ export async function POST() {
           price: (item.total_price / item.quantity).toFixed(2),
           sku: item.sku || '',
           title: item.product_name || 'Transparent Capsule Pet Backpack',
-          variant_title: color === 'Green' ? 'green / United States' : color
+          variant_title: color === 'Green' ? 'green / United States' : `${color} / United States`
         };
       });
 
@@ -118,7 +123,7 @@ export async function POST() {
 
       // التحقق من التوكن و API base
       if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
-        console.error(`❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined for order ${order.id}`);
+       (console.error(`❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined for order ${order.id}`);
         continue;
       }
       if (!SHOPIFY_API_BASE) {
