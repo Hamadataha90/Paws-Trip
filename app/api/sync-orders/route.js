@@ -1,9 +1,15 @@
 import { sql } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE || 'https://humidityzone.myshopify.com/admin/api/2023-10';
+const SHOPIFY_HEADERS = {
+  'Content-Type': 'application/json',
+  'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN
+};
+
 export async function POST() {
   try {
-    console.log('📋 Starting Shopify sync check');
+    console.log('📋 Starting Shopify sync');
 
     // جلب الأوردرات
     const ordersResult = await sql`
@@ -24,6 +30,7 @@ export async function POST() {
       );
     }
 
+    let syncedCount = 0;
     const preparedOrders = [];
 
     for (const order of orders) {
@@ -88,19 +95,62 @@ export async function POST() {
         }
       };
 
-      console.log(`📤 Prepared Shopify order for ${order.id}:`, JSON.stringify(shopifyOrder, null, 2));
-      preparedOrders.push({ id: order.id, shopifyOrder });
+      console.log(`📤 Prepared Shopify order for ${order.id}`);
+
+      // التحقق من التوكن و API base
+      if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
+        console.error(`❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined for order ${order.id}`);
+        continue;
+      }
+      if (!SHOPIFY_API_BASE) {
+        console.error(`❌ SHOPIFY_API_BASE is not defined for order ${order.id}`);
+        continue;
+      }
+
+      // إرسال الأوردر لـ Shopify
+      const response = await fetch(`${SHOPIFY_API_BASE}/orders.json`, {
+        method: 'POST',
+        headers: SHOPIFY_HEADERS,
+        body: JSON.stringify(shopifyOrder)
+      });
+
+      const responseText = await response.text();
+      if (!response.ok) {
+        console.error(`❌ Failed to sync order ${order.id}: ${response.status} - ${responseText}`);
+        continue;
+      }
+
+      const shopifyData = JSON.parse(responseText);
+      const shopifyOrderId = shopifyData.order?.id;
+
+      if (!shopifyOrderId) {
+        console.error(`❌ No shopify_order_id returned for order ${order.id}`);
+        continue;
+      }
+
+      // تحديث الداتابيز
+      await sql`
+        UPDATE orders 
+        SET shopify_synced = TRUE, 
+            shopify_order_id = ${shopifyOrderId}, 
+            fulfillment_status = 'ready_to_ship'
+        WHERE id = ${order.id};
+      `;
+
+      console.log(`✅ Order ${order.id} synced to Shopify with ID ${shopifyOrderId}`);
+      syncedCount++;
+      preparedOrders.push({ id: order.id, shopifyOrderId });
     }
 
-    console.log(`🎉 Prepared ${preparedOrders.length} orders for sync`);
+    console.log(`🎉 Synced ${syncedCount} orders successfully`);
     return NextResponse.json(
-      { success: true, message: `Prepared ${preparedOrders.length} orders`, preparedOrders },
+      { success: true, message: `Synced ${syncedCount} orders`, preparedOrders },
       { status: 200 }
     );
   } catch (error) {
-    console.error('🚨 Error preparing orders:', error.message);
+    console.error('🚨 Error syncing orders:', error.message);
     return NextResponse.json(
-      { success: false, message: 'Failed to prepare orders', error: error.message },
+      { success: false, message: 'Failed to sync orders', error: error.message },
       { status: 500 }
     );
   }
