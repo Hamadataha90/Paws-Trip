@@ -7,7 +7,10 @@ import { createCoinPaymentTransaction } from "../actions/coinpayments";
 import { FaBitcoin } from "react-icons/fa";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import countries from "i18n-iso-countries";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import Select from "react-select";
+import { getNames } from "country-list";
 import Discounts from "./Discounts"; // استيراد الكومبوننت
 
 const isValidCSSColor = (color) => {
@@ -20,6 +23,20 @@ const normalizeColor = (color) => {
   const colorMap = { kaki: "khaki", grey: "gray" };
   return colorMap[color.toLowerCase()] || color.toLowerCase();
 };
+
+const countryOptions = getNames().map((name) => ({
+  value: name,
+  label: name,
+}));
+
+countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
+
+const getCountryCodeFromName = (countryName) => {
+  const entries = Object.entries(countries.getNames("en", { select: "official" }));
+  const match = entries.find(([, name]) => name.toLowerCase() === countryName.toLowerCase());
+  return match ? match[0].toLowerCase() : "us"; // fallback to US
+};
+
 
 const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -81,9 +98,9 @@ const CheckoutPage = () => {
   
   const handleOrderConfirmation = async (e) => {
     e.preventDefault();
-    let { name, address, city, postalCode, country, phone, email } = shippingInfo;
+    let { name, address, city, postalCode, country, phone, email, state } = shippingInfo;
 
-    if (!name || !address || !city || !postalCode || !country || !phone || !email) {
+    if (!name || !address || !city || !state || !postalCode || !country || !phone || !email) {
       setMessage({ type: "warning", text: "Please fill in all required shipping fields." });
       return;
     }
@@ -285,39 +302,86 @@ const CheckoutPage = () => {
             <Card.Body style={{ flex: "1 1 auto", overflowY: "auto", maxHeight: "400px", paddingRight: "10px" }}>
               <h4 className="mb-4" style={{ color: "#2c3e50" }}>Shipping Information</h4>
               <Form>
-                {["name", "address", "city", "postalCode", "country", "email"].map((field) => (
-                  <Form.Group key={field} className="mb-3" controlId={field}>
-                    <Form.Label style={{ color: "#2c3e50" }}>{field.replace(/([A-Z])/g, " $1")}</Form.Label>
-                    <Form.Control
-                      type={field === "email" ? "email" : "text"}
-                      name={field}
-                      value={shippingInfo[field]}
-                      onChange={handleInputChange}
-                      required
-                      style={{
-                        borderColor: "#ced6e0",
-                        borderRadius: "8px",
-                        transition: "border-color 0.3s ease",
-                      }}
-                    />
-                  </Form.Group>
-                ))}
+  {["name", "email"].map((field) => (
+    <Form.Group key={field} className="mb-3" controlId={field}>
+      <Form.Label style={{ color: "#2c3e50" }}>
+        {field.replace(/([A-Z])/g, " $1")}
+      </Form.Label>
+      <Form.Control
+        type={field === "email" ? "email" : "text"}
+        name={field}
+        value={shippingInfo[field]}
+        onChange={handleInputChange}
+        required
+        style={{
+          borderColor: "#ced6e0",
+          borderRadius: "8px",
+          transition: "border-color 0.3s ease",
+        }}
+      />
+    </Form.Group>
+  ))}
 
-                <Form.Group className="mb-3" controlId="phone">
-                  <Form.Label style={{ color: "#2c3e50" }}>Phone Number</Form.Label>
-                  <PhoneInput
-                    country={"eg"}
-                    value={shippingInfo.phone}
-                    onChange={(phone) => setShippingInfo({ ...shippingInfo, phone })}
-                    inputStyle={{
-                      width: "100%",
-                      borderColor: "#ced6e0",
-                      borderRadius: "8px",
-                    }}
-                    inputProps={{ name: "phone", required: true }}
-                  />
-                </Form.Group>
-              </Form>
+  {/* Country comes here */}
+  <Form.Group className="mb-3" controlId="country">
+    <Form.Label style={{ color: "#2c3e50" }}>Country</Form.Label>
+    <Select
+      options={countryOptions}
+      value={countryOptions.find((opt) => opt.value === shippingInfo.country)}
+      onChange={(selected) =>
+        setShippingInfo({ ...shippingInfo, country: selected.value })
+      }
+      placeholder="Select country"
+      styles={{
+        control: (base) => ({
+          ...base,
+          borderColor: "#ced6e0",
+          borderRadius: "8px",
+          padding: "2px",
+        }),
+      }}
+    />
+  </Form.Group>
+
+  {["state-or-province", "city", "address", "postalCode"].map((field) => (
+    <Form.Group key={field} className="mb-3" controlId={field}>
+      <Form.Label style={{ color: "#2c3e50" }}>
+        {field.replace(/([A-Z])/g, " $1")}
+      </Form.Label>
+      <Form.Control
+        type="text"
+        name={field}
+        value={shippingInfo[field]}
+        onChange={handleInputChange}
+        required
+        style={{
+          borderColor: "#ced6e0",
+          borderRadius: "8px",
+          transition: "border-color 0.3s ease",
+        }}
+      />
+    </Form.Group>
+  ))}
+
+  {/* Phone input at the end */}
+  <Form.Group className="mb-3" controlId="phone">
+    <Form.Label style={{ color: "#2c3e50" }}>Phone Number</Form.Label>
+
+    <PhoneInput
+  country={getCountryCodeFromName(shippingInfo.country)}
+  value={shippingInfo.phone}
+  onChange={(phone) => setShippingInfo({ ...shippingInfo, phone })}
+  inputStyle={{
+    width: "100%",
+    borderColor: "#ced6e0",
+    borderRadius: "8px",
+  }}
+  inputProps={{ name: "phone", required: true }}
+/>
+
+  </Form.Group>
+</Form>
+
             </Card.Body>
           </Card>
 
