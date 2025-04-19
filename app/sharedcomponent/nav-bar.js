@@ -13,6 +13,7 @@ const NavBar = () => {
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(60); // قيمة الزوم الافتراضية
+  const [expandedIndex, setExpandedIndex] = useState(null);
   const router = useRouter(); // استخدام useRouter
 
   useEffect(() => {
@@ -130,7 +131,7 @@ const NavBar = () => {
 
 
         {/* Cart Dropdown */}
-        <Dropdown show={showCart} onToggle={(isOpen) => setShowCart(isOpen)} align="end">
+        <Dropdown show={showCart} onToggle={(isOpen) => setShowCart(isOpen)} align="end"  autoClose="outside" >
           <Dropdown.Toggle
             as={Button}
             variant="outline-dark"
@@ -181,6 +182,7 @@ const NavBar = () => {
                   <Dropdown.Item
                     key={index}
                     as="div"
+                    onClick={(e) => e.stopPropagation()}
                     className="d-flex align-items-center mb-3 p-3"
                     style={{
                       borderBottom: index < cartItems.length - 1 ? "1px solid #ecf0f1" : "none",
@@ -201,13 +203,43 @@ const NavBar = () => {
                         border: "1px solid #ddd",
                       }}
                     />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: "bold", fontSize: "1.1rem", color: "#1a3c34" }}>
-                        {item.title}
-                      </div>
+
+...
+
+
+
+<div style={{ flex: 1 }}>
+  <div
+    onClick={(e) => {
+      e.stopPropagation();
+      setExpandedIndex(expandedIndex === index ? null : index);
+    }}
+    style={{
+      fontWeight: "bold",
+      fontSize: "1.1rem",
+      color: "#1a3c34",
+      cursor: "pointer",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: expandedIndex === index ? "normal" : "nowrap",
+      maxWidth: "250px",
+      transition: "all 0.3s ease",
+      maxHeight: expandedIndex === index ? "100px" : "1.2em", // ✅ هنا المفتاح
+      overflowY: expandedIndex === index ? "auto" : "hidden",
+    }}
+    title={item.title}
+  >
+    {item.title}
+  </div>
+
+
+
+
                       <div style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
                         Color: <span style={{ textTransform: "capitalize" }}>{item.color}</span>
                       </div>
+
+
                       <div className="d-flex align-items-center mt-2">
                         <Button
                           variant="outline-secondary"
