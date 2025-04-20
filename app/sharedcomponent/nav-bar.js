@@ -38,9 +38,9 @@ const NavBar = () => {
   // دالة للتنقل
   const handleNavigation = (path) => {
     setTimeout(() => {
-      setShowCart(false); // إغلاق السلة بعد عدد من الثواني
       router.push(path); // التنقل باستخدام router.push
-    }, 2000); // 2000 ميللي ثانية (2 ثانية) قبل إغلاق السلة
+      setShowCart(false); // إغلاق السلة بعد عدد من الثواني
+    }, 5000); // 2000 ميللي ثانية (2 ثانية) قبل إغلاق السلة
   };
   
 
@@ -102,12 +102,31 @@ const NavBar = () => {
     <ClientZoomEffect zoomLevel={zoomLevel} /> {/* هنا قمنا بتمرير قيمة الزوم */}
 
     <Navbar expand="lg" bg="light" variant="light" className="shadow-sm sticky-top" style={{ backgroundColor: "#f8f9fa" }}>
-      <Navbar.Brand
-        onClick={() => handleNavigation("/")}
-        style={{ color: "#1a3c34", fontWeight: "bold", paddingLeft: "15px", cursor: "pointer" }}
-      >
-        Paws Trip
-      </Navbar.Brand>
+    <Navbar.Brand
+  onClick={() => handleNavigation("/")}
+  style={{
+    color: "#1a3c34",
+    fontWeight: "bold",
+    paddingLeft: "35px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "20px",
+    transition: "color 0.3s ease",
+  }}
+>
+  
+  Paws Trip
+
+  <img
+    src="/logo.png"
+    alt="Logo"
+    width="50"
+    height="50"
+    style={{ marginRight: "10px", borderRadius: "50%", padding: "2px", border: "2px solid #16a085" }}
+  />
+</Navbar.Brand>
+
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mx-auto">
