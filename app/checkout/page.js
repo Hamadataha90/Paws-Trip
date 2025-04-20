@@ -12,6 +12,12 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 import Select from "react-select";
 import { getNames } from "country-list";
 import Discounts from "./Discounts"; // استيراد الكومبوننت
+import { FiChevronsDown } from "react-icons/fi"; // سهمين لتحت
+
+
+
+
+
 
 const isValidCSSColor = (color) => {
   const s = new Option().style;
@@ -294,6 +300,10 @@ const CheckoutPage = () => {
 
         </Col>
 
+
+
+        {/* Shipping Information and Payment Method */}
+
         <Col md={6} xs={12} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <Card
             className="shadow-sm"
@@ -383,7 +393,20 @@ const CheckoutPage = () => {
 </Form>
 
             </Card.Body>
+            <div style={{ textAlign: "center", marginTop: "-30px", marginBottom: "20px" }}>
+                  <FiChevronsDown
+                    className="scroll-indicator-icon"
+                    size={44}
+                    color="#2ecc71"
+                  />
+              <div style={{ fontSize: "20px", color: "#7f8c8d", marginTop: "4px" }}>
+                   More below...
+              </div>
+          </div>
           </Card>
+
+
+         
 
           <Card
             className="shadow-sm"
