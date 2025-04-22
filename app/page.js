@@ -8,7 +8,7 @@ export default async function HomePage() {
   return (
     <main className="container mt-5">
       <h1 className="text-center">
-        Welcome to <span className="text-primary">Humidity-Zone</span> Store
+        Welcome to <span className="text-primary"> Paws-Trip</span> Store
       </h1>
       <Container className="mt-5">
         <Slider products={products} title="🌟 Featured Products" chunkSize={3} />
