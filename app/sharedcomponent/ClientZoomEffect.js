@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const ClientZoomEffect = ({ zoomLevel = 60 }) => {
+const ClientZoomEffect = ({ zoomLevel = 70 }) => {
   useEffect(() => {
     // تطبق الزوم الجديد بناءً على القيمة التي تم تمريرها
     document.body.style.zoom = `${zoomLevel}%`;

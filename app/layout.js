@@ -55,7 +55,7 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme={initialTheme} style={{ colorScheme: initialTheme }}>
       <body className={cairo.variable}>
         <DarkMode initialTheme={initialTheme}>
-          <ClientZoomEffect zoomLevel={60} / > 
+          <ClientZoomEffect zoomLevel={70} / > 
           <NavBar />
           <FreeShippingBanner
             title="Free Shipping on all Orders"

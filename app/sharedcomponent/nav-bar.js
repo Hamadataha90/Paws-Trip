@@ -116,14 +116,14 @@ const NavBar = () => {
   }}
 >
   
-  Paws Trip
+  {/* Paws Trip */}
 
   <img
     src="/logo.png"
     alt="Logo"
-    width="50"
-    height="50"
-    style={{ marginRight: "10px", borderRadius: "50%", padding: "2px", border: "2px solid #16a085" }}
+    width="100"
+    height="20"
+    style={{ marginRight: "10px", borderRadius: "50%", padding: "2px",}}
   />
 </Navbar.Brand>
 

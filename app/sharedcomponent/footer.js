@@ -8,53 +8,77 @@ const Footer = () => {
       <Container>
         <Row className="text-center text-md-start">
           {/* About Section */}
-          <Col md={4} className="mb-3">
-            <h5 className="fw-bold">Summer Style</h5>
-            <p>Discover the latest trends in fashion and style. High-quality products at great prices!</p>
-          </Col>
+<Col md={4} className="mb-3">
+  <h5 className="fw-bold mb-2">🐾 Paws-Trip</h5>
+  <p className="text-muted mb-2">Your Pet-Friendly Travel Companion</p>
+  <hr />
+  <div className="text-muted">
+    <p className="mb-1">🧳 Premium Travel Gear</p>
+    <p className="mb-1">🐶 Comfort for Your Pets</p>
+    <p className="mb-1">✈️ Stress-Free Adventures</p>
+  </div>
+</Col>
 
-          {/* Quick Links */}
-          <Col md={4} className="mb-3">
-            <h5 className="fw-bold">Quick Links</h5>
-            <ul className="list-unstyled">
-              <li>
-                <Link href="/" passHref legacyBehavior>
-                  <a className="text-dark text-decoration-none">Home</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/products" passHref legacyBehavior>
-                  <a className="text-dark text-decoration-none">Products</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/offers" passHref legacyBehavior>
-                  <a className="text-dark text-decoration-none">Offers</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" passHref legacyBehavior>
-                  <a className="text-dark text-decoration-none">Contact Us</a>
-                </Link>
-              </li>
-            </ul>
-          </Col>
+
+         {/* Quick Links */}
+<Col md={4} className="mb-3">
+  <h5 className="fw-bold mb-3">🔗 Quick Links</h5>
+  <ul className="list-unstyled">
+    <li className="mb-2">
+      <Link href="/" passHref legacyBehavior>
+        <a className="text-dark text-decoration-none">
+          🏠 Home
+        </a>
+      </Link>
+    </li>
+    <li className="mb-2">
+      <Link href="/products" passHref legacyBehavior>
+        <a className="text-dark text-decoration-none">
+          🛍️ Products
+        </a>
+      </Link>
+    </li>
+    <li className="mb-2">
+      <Link href="/offers" passHref legacyBehavior>
+        <a className="text-dark text-decoration-none">
+          💸 Offers
+        </a>
+      </Link>
+    </li>
+  </ul>
+</Col>
+
 
           {/* Contact Section */}
-          <Col md={4} className="mb-3">
-            <h5 className="fw-bold">Contact</h5>
-            <p>Email: support@Summerstyle.com</p>
-            <p>Phone: +1 234 567 890</p>
-            <p>Address: 123 Fashion St, New York, USA</p>
-          </Col>
+<Col md={4} className="mb-3">
+  <h5 className="fw-bold mb-3">📞 Contact Us</h5>
+  <p className="mb-2">
+    📧 <a href="mailto:support@paws-trip.com" className="text-dark text-decoration-none">
+      support@paws-trip.com
+    </a>
+  </p>
+  <p className="mb-2">
+    📱 <a href="tel:+1234567890" className="text-dark text-decoration-none">
+      +1 234 567 890
+    </a>
+  </p>
+  <p className="mb-0">
+    📍 123 Fashion St, New York, USA
+  </p>
+</Col>
+
+
         </Row>
 
-        {/* Copyright */}
-        <Row className="text-center mt-3">
-          <Col>
-            <p className="mb-0">&copy; {new Date().getFullYear()} Summer Style. All Rights Reserved.</p>
-          </Col>
-        </Row>
+       {/* Copyright */}
+<Row className="text-center mt-4">
+  <Col>
+    <p className="mb-0 text-muted">
+      &copy; {new Date().getFullYear()} <strong>Paws-Trip</strong> 🐾 — All Rights Reserved.
+    </p>
+  </Col>
+</Row>
+
       </Container>
     </footer>
   );

@@ -18,7 +18,7 @@ const Slider = ({ products, title = "", chunkSize = 3 }) => {
 
   return (
     <div className="position-relative">
-      <Container className="mt-2">
+      <Container fluid  className="mt-2">
         <h2 className="text-center mb-4">{title}</h2>
         <Carousel interval={3000} pause="hover">
           {productChunks.map((chunk, index) => (
