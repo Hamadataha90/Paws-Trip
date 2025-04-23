@@ -38,9 +38,9 @@ const NavBar = () => {
   // دالة للتنقل
   const handleNavigation = (path) => {
     setTimeout(() => {
-      router.push(path); // التنقل باستخدام router.push
       setShowCart(false); // إغلاق السلة بعد عدد من الثواني
-    }, 5000); // 2000 ميللي ثانية (2 ثانية) قبل إغلاق السلة
+      router.push(path); // التنقل باستخدام router.push
+    }, 5000); // 2000 
   };
   
 
