@@ -216,7 +216,7 @@ export default function ProductDetails({ product: initialProduct }) {
       const newItem = {
         id: selectedVariant.id,
         quantity: parseInt(quantity, 10),
-        title: selectedVariant.title,
+        title: product.title,
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
