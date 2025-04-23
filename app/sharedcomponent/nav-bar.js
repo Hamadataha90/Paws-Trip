@@ -12,7 +12,7 @@ const NavBar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(60); // قيمة الزوم الافتراضية
+  const [zoomLevel, setZoomLevel] = useState(70); // قيمة الزوم الافتراضية
   const [expandedIndex, setExpandedIndex] = useState(null);
   const router = useRouter(); // استخدام useRouter
 
