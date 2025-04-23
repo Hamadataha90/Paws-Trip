@@ -7,7 +7,7 @@ export default async function HomePage() {
   
 
   return (
-    <main className="container mt-5">
+    <main className="container-fluid w-75 mt-5">
       <h1 className="text-center display-4 fw-bold mb-3">
         Where Pet Journeys Begin — <span className="text-primary">Paws-Trip</span>
       </h1>

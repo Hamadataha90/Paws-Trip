@@ -15,10 +15,11 @@ export default async function ProductsPage() {
   }
 
   return (
-    <Container className="mt-5">
+    <Container fluid className="mt-5 w-75 mx-auto">
       <h1 className="text-center display-5 fw-bold mb-4">
         🛍️ Browse Our Collection
       </h1>
+      <hr className="my-5" />
 
       {!products.length && !error && (
         <div className="text-center">
