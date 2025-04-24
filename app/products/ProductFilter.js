@@ -11,7 +11,7 @@ const COMPARE_PRICE_MULTIPLIER = 2.0;
 export default function ProductFilter({ products }) {
   const [search, setSearch] = useState("");
   const [inStockOnly, setInStockOnly] = useState(true);
-  const [enablePriceFilter, setEnablePriceFilter] = useState(false);
+  const [enablePriceFilter, setEnablePriceFilter] = useState(true);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
 

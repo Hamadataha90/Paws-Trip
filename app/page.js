@@ -1,4 +1,4 @@
-import { fetchFeaturedProducts } from "@/app/actions/mainActions"; // استورد من ملف الـ API
+import { fetchFeaturedProducts } from "@/app/actions/productsActions"; // استورد من ملف الـ API
 import { Button, Container } from "react-bootstrap";
 import Slider from "./sharedcomponent/slider";
 

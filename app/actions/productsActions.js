@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE;
 const SHOPIFY_HEADERS = {
   "Content-Type": "application/json",
@@ -30,7 +31,10 @@ export async function fetchProducts() {
       })
     );
 
-    return productsWithDetails;
+    // تصفية المنتجات التي ليست متوفرة
+    const availableProducts = productsWithDetails.filter(product => product.inventory !== "Out of Stock");
+
+    return availableProducts;
   } catch (error) {
     console.error("Shopify API Error (fetchProducts):", error);
     return [];
@@ -118,3 +122,39 @@ export async function fetchProductById(id) {
     throw error;
   }
 }
+
+// جلب المنتجات المميزة مع كاش لمدة 5 دقايق
+export const fetchFeaturedProducts = cache(async () => {
+  try {
+    console.time("Fetch Featured Products");
+
+    const response = await fetch(
+      `${SHOPIFY_API_BASE}/products.json?tags=featured&fields=id,title,images,variants`,
+      {
+        method: "GET",
+        headers: SHOPIFY_HEADERS,
+        next: { revalidate: 300 }, // زيادة الوقت لـ 5 دقايق
+      }
+    );
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Failed to fetch products: ${response.status} - ${response.statusText}`);
+      console.error(`Error details:`, errorBody);
+      throw new Error(`Failed to fetch products: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (!data.products || !Array.isArray(data.products)) {
+      console.warn("Invalid products data received", data);
+      return [];
+    }
+
+    console.timeEnd("Fetch Featured Products");
+
+    return data.products;
+  } catch (error) {
+    console.error("Shopify API Error:", error.message);
+    return [];
+  }
+});
