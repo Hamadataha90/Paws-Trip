@@ -4,6 +4,10 @@ import { useState, useMemo } from "react";
 import ProductCard from "../sharedcomponent/productCard";
 import { Row, Col, Form, Card } from "react-bootstrap";
 
+
+
+const PRICE_MULTIPLIER = 2;
+const COMPARE_PRICE_MULTIPLIER = 2.0;
 export default function ProductFilter({ products }) {
   const [search, setSearch] = useState("");
   const [inStockOnly, setInStockOnly] = useState(true);
@@ -12,15 +16,20 @@ export default function ProductFilter({ products }) {
   const [priceMax, setPriceMax] = useState("");
 
   const filteredProducts = useMemo(() => {
+    
     return products.filter((product) => {
       const nameMatch = product.title.toLowerCase().includes(search.toLowerCase());
       const inStock = !inStockOnly || product.inventory?.startsWith("In Stock");
-      const price = parseFloat(product.variants?.[0]?.price || 0);
+
+       // حساب السعر بعد ضرب المعاملات
+       const originalPrice = parseFloat(product.variants?.[0]?.price || 0);
+       const adjustedPrice = originalPrice * PRICE_MULTIPLIER;
+    //   const price = parseFloat(product.variants?.[0]?.price || 0);
 
       const withinRange = !enablePriceFilter ||
         (
-          (!priceMin || price >= parseFloat(priceMin)) &&
-          (!priceMax || price <= parseFloat(priceMax))
+          (!priceMin || adjustedPrice >= parseFloat(priceMin)) &&
+          (!priceMax || adjustedPrice <= parseFloat(priceMax))
         );
 
       return nameMatch && inStock && withinRange;
