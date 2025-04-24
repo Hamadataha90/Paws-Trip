@@ -45,12 +45,12 @@ const NavBar = () => {
 
    // دالة لزيادة الزوم
    const increaseZoom = () => {
-    setZoomLevel((prevZoom) => Math.min(prevZoom + 10, 200)); // لا يزيد عن 200%
+    setZoomLevel((prevZoom) => Math.min(prevZoom + 10, 150)); // لا يزيد عن 150%
   };
 
   // دالة لتقليل الزوم
   const decreaseZoom = () => {
-    setZoomLevel((prevZoom) => Math.max(prevZoom - 10, 20)); // لا يقل عن 20%
+    setZoomLevel((prevZoom) => Math.max(prevZoom - 10, 50)); // لا يقل عن 50%
   };
 
   // دالة لزيادة الكمية

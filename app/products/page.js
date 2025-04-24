@@ -3,6 +3,7 @@ import Loading from "../Loading";
 import ProductCard from "../sharedcomponent/productCard";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaBoxOpen } from "react-icons/fa";
+import ProductFilter from "./ProductFilter";
 
 export default async function ProductsPage() {
   let products = [];
@@ -33,15 +34,8 @@ export default async function ProductsPage() {
         </div>
       )}
 
-      {!error && products.length > 0 && (
-        <Row className="g-4">
-          {products.map((product) => (
-            <Col key={product.id} xs={12} sm={6} md={4} lg={4} className="fade-in">
-              <ProductCard product={product} />
-            </Col>
-          ))}
-        </Row>
-      )}
+{!error && products.length > 0 && <ProductFilter products={products} />}
+
 
       {!error && !products.length && (
         <div className="text-center mt-5">

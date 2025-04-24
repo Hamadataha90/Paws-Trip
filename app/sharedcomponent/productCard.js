@@ -39,13 +39,12 @@ const ProductCard = ({ product }) => {
     return isValidCSSColor(lowerColor) ? lowerColor : (colorMap[lowerColor] || "#f5f5f5");
   };
 
-
   const showNotification = (message, bgColor) => {
     const notification = document.createElement("div");
     notification.textContent = message;
     notification.style.cssText = `
       position: fixed; top: 80px; right: 160px; background: ${bgColor}; color: white; z-index: 1000;
-      padding: 10px 20px; border-radius: 5px; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     `;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 2000);
@@ -81,7 +80,6 @@ const ProductCard = ({ product }) => {
 
       localStorage.setItem("cart", JSON.stringify(currentCart));
       showNotification("Added to Cart!", "#16a085");
-      // setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
     } catch (error) {
       console.error("Error in handleAddToCart:", error.message);
@@ -112,96 +110,99 @@ const ProductCard = ({ product }) => {
 
   return (
     <Link href={`/products/${product.id}`} passHref>
-    <Card
-      className="h-100 shadow-sm text-center d-flex flex-column position-relative"
-      style={{ cursor: "pointer", overflow: "hidden", height: "25rem" }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div style={{ position: "relative", width: "100%", height: "25rem" }}>
-        <Card.Img
-          variant="top"
-          src={images[0]?.src || "https://via.placeholder.com/300"}
-          alt={product.title}
-          style={{
-            height: "100%",
-            objectFit: "cover",
-            transition: "all 0.3s ease-in-out",
-            filter: hovered ? "brightness(0.8)" : "brightness(1)",
-          }}
-        />
+      <Card
+        className="card-hover shadow-sm text-center d-flex flex-column position-relative h-100"
+        style={{ cursor: "pointer", overflow: "hidden", height: "25rem" }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <div style={{ position: "relative", width: "100%", height: "25rem" }}>
+          <Card.Img
+            className="card-img-top"
+            variant="top"
+            src={images[0]?.src || "https://via.placeholder.com/300"}
+            alt={product.title}
+            style={{
+              height: "100%",
+              objectFit: "cover",
+              transition: "all 0.3s ease-in-out",
+              filter: hovered ? "brightness(0.8)" : "brightness(1)",
+            }}
+          />
 
-        {/* الـ loading message في نص الكارد */}
-        {loadingView && (
-          <div
+          {/* الـ loading message في نص الكارد */}
+          {loadingView && (
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                padding: "15px 25px",
+                borderRadius: "10px",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                zIndex: 10,
+              }}
+            >
+              <Spinner animation="border" variant="primary" size="sm" />
+              <span className="text-primary fw-bold">{loadingMessage}</span>
+            </div>
+          )}
+
+          <Card.Body
+            className="d-flex flex-column justify-content-center align-items-center"
             style={{
               position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              padding: "15px 25px",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              zIndex: 10,
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              opacity: hovered ? 1 : 0,
+              transition: "opacity 0.4s ease-in-out",
+              padding: "7px",
+              textAlign: "center",
             }}
           >
-            <Spinner animation="border" variant="primary" size="sm" />
-            <span className="text-primary fw-bold">{loadingMessage}</span>
-          </div>
-        )}
+            <Card.Title>{product.title}</Card.Title>
+            <Card.Text className="text-muted">{product.vendor}</Card.Text>
+            <Card.Text className="fw-bold">
+              <del className="text-muted me-2">${adjustedComparePrice.toFixed(2)}</del>
+              <span className="text-primary">${adjustedPrice.toFixed(2)}</span>
+            </Card.Text>
+          </Card.Body>
+        </div>
 
-        <Card.Body
-          className="d-flex flex-column justify-content-center align-items-center"
+        <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
+            bottom: "30px",
             width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            display: "flex",
+            justifyContent: "center",
+            gap: "10px",
             opacity: hovered ? 1 : 0,
             transition: "opacity 0.4s ease-in-out",
-            padding: "7px",
-            textAlign: "center",
+            marginTop: "10px",
           }}
         >
-          <Card.Title>{product.title}</Card.Title>
-          <Card.Text className="text-muted">{product.vendor}</Card.Text>
-          <Card.Text className="fw-bold">
-            <del className="text-muted me-2">${adjustedComparePrice.toFixed(2)}</del>
-            <span className="text-primary">${adjustedPrice.toFixed(2)}</span>
-          </Card.Text>
-        </Card.Body>
-      </div>
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: "30px",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.4s ease-in-out",
-          marginTop: "10px",
-        }}
-      >
-        {addedToCart ? (
-          <div className="text-success fw-bold">✅ Added to Cart!</div>
-        ) : (
-          <Button variant="primary" onClick={handleAddToCart}>
-            Add to Cart
+          {addedToCart ? (
+            <div className="text-success fw-bold">✅ Added to Cart!</div>
+          ) : (
+            <div className="button-group d-flex justify-content-center gap-2">
+              <Button variant="primary" onClick={handleAddToCart}>
+                Add to Cart
+              </Button>
+            </div>
+          )}
+          <Button variant="outline-primary" onClick={handleViewProduct} disabled={loadingView}>
+            {loadingView ? "Loading..." : "View Product"}
           </Button>
-        )}
-        <Button variant="outline-primary" onClick={handleViewProduct} disabled={loadingView}>
-          {loadingView ? "Loading..." : "View Product"}
-        </Button>
-      </div>
-    </Card>
+        </div>
+      </Card>
     </Link>
   );
 };
