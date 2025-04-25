@@ -404,7 +404,7 @@ const CheckoutPage = () => {
                    More below...
               </div>
           </div>
-          </Card>
+      </Card>
 
 
          

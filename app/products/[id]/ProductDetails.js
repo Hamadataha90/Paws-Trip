@@ -4,6 +4,8 @@ import { Container, Row, Col, Badge, Button, Image, Spinner } from "react-bootst
 import { GeoAltFill } from "react-bootstrap-icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { FaTruck } from "react-icons/fa";
+
 
 export default function ProductDetails({ product: initialProduct }) {
   const [product, setProduct] = useState(initialProduct);
@@ -14,6 +16,56 @@ export default function ProductDetails({ product: initialProduct }) {
   const [isSticky, setIsSticky] = useState(false);
   const [loading, setLoading] = useState(!initialProduct); // لو مفيش initialProduct، اعرض loading
   const [error, setError] = useState(null);
+
+
+  const estimatedDelivery = useMemo(() => {
+    const locationKey = product.shippingLocation
+      ?.replace(/\(.*\)/, "")   // إزالة النص بين الأقواس مثل (US)
+      .toLowerCase()
+      .trim();  // إزالة المسافات الزائدة
+  
+    const normalizedLocationKey = {
+      "united states": "usa",
+      "us": "usa",
+      "canada": "canada",
+      "united kingdom": "uk",
+      "uk": "uk",
+      "australia": "australia",
+      "uae": "uae",
+      "china": "china",
+      "germany": "germany",
+      "france": "france",
+      "japan": "japan",
+      "south korea": "south korea",
+    };
+  
+    const deliveryTimes = {
+      "usa": "2-4 days",
+      "canada": "3-5 days",
+      "uk": "5-7 days",
+      "australia": "7-10 days",
+      "uae": "5-7 days",
+      "china": "10-15 days",
+      "germany": "5-7 days",
+      "france": "4-6 days",
+      "japan": "5-7 days",
+      "south korea": "5-7 days",
+    };
+  
+    const locationKeyNormalized = normalizedLocationKey[locationKey] || locationKey;
+  
+    // إذا كانت معلومات الشحن غير متوفرة
+    if (locationKeyNormalized === "shipping info unavailable") {
+      return "Shipping Info Unavailable";
+    }
+  
+    // إرجاع الوقت المحدد بناءً على الموقع
+    return locationKeyNormalized ? (deliveryTimes[locationKeyNormalized] || "Shipping Info Unavailable") : "Shipping Info Unavailable";
+  }, [product.shippingLocation]);
+  
+
+
+
 
   const router = useRouter();
 
@@ -310,6 +362,10 @@ export default function ProductDetails({ product: initialProduct }) {
           </div>
         </Col>
 
+
+
+
+         
         <Col md={6} xs={12}  className="px-4 py-2 col-details">
           <h1 className="mb-2">{product.title}</h1>
           <Badge bg="secondary" className="mb-3">{product.product_type || "General"}</Badge>
@@ -341,14 +397,30 @@ export default function ProductDetails({ product: initialProduct }) {
             </select>
           </div>
 
-          <div className="d-flex align-items-center gap-3 mt-4">
-            <Button variant="outline-danger" onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}>-</Button>
-            <span className="text-success fw-bold">{quantity}</span>
-            <Button variant="outline-danger" onClick={() => setQuantity((prev) => prev + 1)}>+</Button>
-            <motion.span className="text-primary fw-bold ms-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-              Total: ${(adjustedPrice * quantity).toFixed(2)}
-            </motion.span>
-          </div>
+            <div className="d-flex justify-content-between align-items-center mt-4 w-100">
+                <div className="d-flex align-items-center gap-3">
+                  <Button variant="outline-danger" onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}>-</Button>
+                  <span className="text-success fw-bold">{quantity}</span>
+                  <Button variant="outline-danger" onClick={() => setQuantity((prev) => prev + 1)}>+</Button>
+                  <motion.span className="text-primary fw-bold ms-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                    Total: ${(adjustedPrice * quantity).toFixed(2)}
+                  </motion.span>
+                </div>
+
+                {estimatedDelivery && (
+  <div className="d-flex align-items-center gap-2 ms-auto">
+    <FaTruck className="text-warning" /> 
+    <span className="text-dark fw-bold small text-nowrap">
+  Estimated Delivery: 
+  <span className="fw-semibold text-primary fs-6">{estimatedDelivery}</span>
+</span>
+
+  </div>
+)}
+
+              </div>
+
+
 
           <div className="d-flex gap-3 mt-4">
             <Button onClick={handleAddToCart} className="flex-grow-1" size="lg" disabled={loading}>
