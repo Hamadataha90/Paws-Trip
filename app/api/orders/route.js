@@ -16,6 +16,7 @@ async function insertOrder(orderId, item, discountRate = 0) {
       INSERT INTO order_items (
         order_id,
         variant_id,
+        varientName,
         product_name,
         price,
         quantity,
@@ -28,6 +29,7 @@ async function insertOrder(orderId, item, discountRate = 0) {
       VALUES (
         ${orderId},
         ${item.id},
+        ${item.varientName || null},
         ${item.title},
         ${price},
         ${quantity},

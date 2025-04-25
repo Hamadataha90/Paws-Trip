@@ -70,7 +70,8 @@ const CheckoutPage = () => {
       const formattedCart = storedCart.map((item) => ({
         ...item,
         id: item.id || item.productId,
-        title: item.title || item.productName,
+        title: item.title || item.productName ,
+        varientName: item.varientName || item.productVarientName,
         price: parseFloat(item.price) || 0,
         quantity: parseInt(item.quantity, 10) || 1,
         color: normalizeColor(item.color || "unknown"),
@@ -104,9 +105,9 @@ const CheckoutPage = () => {
   
   const handleOrderConfirmation = async (e) => {
     e.preventDefault();
-    let { name, address, city, postalCode, country, phone, email, state } = shippingInfo;
+    let { name, email, country, state, city, address, postalCode, phone } = shippingInfo;
 
-    if (!name || !address || !city || !state || !postalCode || !country || !phone || !email) {
+    if (!name || !email || !country|| !state|| !city || !address  || !postalCode || !phone ) {
       setMessage({ type: "warning", text: "Please fill in all required shipping fields." });
       return;
     }
@@ -353,7 +354,7 @@ const CheckoutPage = () => {
     />
   </Form.Group>
 
-  {["state-or-province", "city", "address", "postalCode"].map((field) => (
+  {["state", "city", "address", "postalCode"].map((field) => (
     <Form.Group key={field} className="mb-3" controlId={field}>
       <Form.Label style={{ color: "#2c3e50" }}>
         {field.replace(/([A-Z])/g, " $1")}

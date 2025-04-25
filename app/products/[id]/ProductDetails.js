@@ -217,6 +217,7 @@ export default function ProductDetails({ product: initialProduct }) {
         id: selectedVariant.id,
         quantity: parseInt(quantity, 10),
         title: product.title,
+        varientName: selectedVariant.title,
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,

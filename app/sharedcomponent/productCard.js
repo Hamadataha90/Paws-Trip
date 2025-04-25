@@ -65,6 +65,7 @@ const ProductCard = ({ product }) => {
         id: product.variants[0].id,
         quantity: 1,
         title: product.title,
+        varientName: product.variants[0].title,
         price: parseFloat(adjustedPrice),
         image: images[0].src,
         color: color,
