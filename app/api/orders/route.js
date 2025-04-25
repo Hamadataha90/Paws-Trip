@@ -1,9 +1,9 @@
-import { sql } from '@vercel/postgres';
+import { sql } from "@vercel/postgres";
 
 async function insertOrder(orderId, item, discountRate = 0) {
   const price = parseFloat(item.price);
   const quantity = parseInt(item.quantity, 10);
-  const total_price = (price * quantity / 2).toFixed(2); // السعر الأصلي بدون خصم
+  const total_price = ((price * quantity) / 2).toFixed(2); // السعر الأصلي بدون خصم
   const customer_paid = (price * quantity * (1 - discountRate)).toFixed(2); // السعر المضروب بعد الخصم
 
   if (isNaN(price) || isNaN(quantity)) {
@@ -49,24 +49,40 @@ async function insertOrder(orderId, item, discountRate = 0) {
 
 export async function POST(req) {
   try {
-    const { cartItems, shippingInfo, selectedCurrency, txn_id, status, discountRate } = await req.json();
+    const {
+      cartItems,
+      shippingInfo,
+      selectedCurrency,
+      txn_id,
+      status,
+      discountRate,
+    } = await req.json();
 
     // التحقق من المدخلات
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
       return new Response(
-        JSON.stringify({ success: false, message: 'Cart items are required and must be an array' }),
+        JSON.stringify({
+          success: false,
+          message: "Cart items are required and must be an array",
+        }),
         { status: 400 }
       );
     }
-    if (!shippingInfo || typeof shippingInfo !== 'object') {
+    if (!shippingInfo || typeof shippingInfo !== "object") {
       return new Response(
-        JSON.stringify({ success: false, message: 'Shipping info is required' }),
+        JSON.stringify({
+          success: false,
+          message: "Shipping info is required",
+        }),
         { status: 400 }
       );
     }
     if (!txn_id) {
       return new Response(
-        JSON.stringify({ success: false, message: 'Transaction ID is required' }),
+        JSON.stringify({
+          success: false,
+          message: "Transaction ID is required",
+        }),
         { status: 400 }
       );
     }
@@ -79,12 +95,12 @@ export async function POST(req) {
     console.log("Received discountRate:", discountRate);
 
     // تحديد العملة والحالة
-    let currency = String(selectedCurrency || 'USD');
-    if (!currency || currency.trim() === '') {
-      console.warn('Currency is empty, defaulting to USD');
-      currency = 'USD';
+    let currency = String(selectedCurrency || "USD");
+    if (!currency || currency.trim() === "") {
+      console.warn("Currency is empty, defaulting to USD");
+      currency = "USD";
     }
-    const orderStatus = status || 'Pending';
+    const orderStatus = status || "Pending";
 
     // إنشاء أوردر جديد في orders
     const orderResult = await sql`
@@ -133,7 +149,10 @@ export async function POST(req) {
       // لو ما نجحناش نضيف ولا منتج، نمسح الأوردر
       await sql`DELETE FROM orders WHERE id = ${orderId};`;
       return new Response(
-        JSON.stringify({ success: false, message: 'No valid items were inserted' }),
+        JSON.stringify({
+          success: false,
+          message: "No valid items were inserted",
+        }),
         { status: 400 }
       );
     }
@@ -141,22 +160,22 @@ export async function POST(req) {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Order processed successfully',
+        message: "Order processed successfully",
         orderId,
         insertedCount: successfulInserts,
         totalItems: cartItems.length,
         txn_id,
-        discountRate
+        discountRate,
       }),
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error processing order:', error);
+    console.error("Error processing order:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        message: 'Failed to process order',
-        error: error.message || 'Unknown error'
+        message: "Failed to process order",
+        error: error.message || "Unknown error",
       }),
       { status: 500 }
     );

@@ -1,110 +1,83 @@
-'use server'
+"use server";
 
-import crypto from 'crypto'
-import axios from 'axios'
+import crypto from "crypto";
+import axios from "axios";
 
 export async function createCoinPaymentTransaction(formData) {
-  const amount = formData.get('amount')
-  const email = formData.get('email')
-  const currency2 = formData.get('currency2') || 'LTCT'
+  const amount = formData.get("amount");
+  const email = formData.get("email");
+  const currency2 = formData.get("currency2") || "LTCT";
 
   // التأكد من وجود المفاتيح في البيئة
-  const publicKey = process.env.COINPAYMENTS_PUBLIC_KEY
-  const privateKey = process.env.COINPAYMENTS_PRIVATE_KEY
+  const publicKey = process.env.COINPAYMENTS_PUBLIC_KEY;
+  const privateKey = process.env.COINPAYMENTS_PRIVATE_KEY;
 
   if (!publicKey || !privateKey) {
-    console.error('❌ Missing CoinPayments keys.')
-    return { success: false, error: 'CoinPayments keys are missing.' }
+    console.error("❌ Missing CoinPayments keys.");
+    return { success: false, error: "CoinPayments keys are missing." };
   }
 
   // تأكد من أن المبلغ والبريد الإلكتروني موجودين
   if (!amount || !email) {
-    console.error('❌ Amount or email is missing.')
-    return { success: false, error: 'Amount and email are required.' }
+    console.error("❌ Amount or email is missing.");
+    return { success: false, error: "Amount and email are required." };
   }
 
   const payload = {
-    version: '1',
-    cmd: 'create_transaction',
+    version: "1",
+    cmd: "create_transaction",
     key: publicKey,
     amount,
-    currency1: 'USD',
+    currency1: "USD",
     currency2,
     buyer_email: email,
-    ipn_url: 'https://paws-trip.vercel.app/api/ipn',
+    ipn_url: "https://paws-trip.vercel.app/api/ipn",
     success_url: `https://paws-trip.vercel.app/thanks?status=completed`,
-    cancel_url: 'https://paws-trip.vercel.app/checkout',
-    format: 'json',
-  }
+    cancel_url: "https://paws-trip.vercel.app/checkout",
+    format: "json",
+  };
 
-  const encodedPayload = new URLSearchParams(payload).toString()
+  const encodedPayload = new URLSearchParams(payload).toString();
 
   const hmac = crypto
-    .createHmac('sha512', privateKey)
+    .createHmac("sha512", privateKey)
     .update(encodedPayload)
-    .digest('hex')
+    .digest("hex");
 
   try {
     const response = await axios.post(
-      'https://www.coinpayments.net/api.php',
+      "https://www.coinpayments.net/api.php",
       encodedPayload,
       {
         headers: {
           HMAC: hmac,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }
-    )
+    );
 
-    const result = response.data
+    const result = response.data;
 
-    if (result.error === 'ok') {
+    if (result.error === "ok") {
       return {
         success: true,
         checkout_url: result.result.checkout_url,
         txn_id: result.result.txn_id,
-      }
+      };
     } else {
       return {
         success: false,
         error: result.error,
-      }
+      };
     }
   } catch (error) {
-    console.error('CoinPayments Error:', error.response?.data || error.message)
+    console.error("CoinPayments Error:", error.response?.data || error.message);
     return {
       success: false,
-      error: 'Something went wrong with the payment.',
-    }
+      error: "Something went wrong with the payment.",
+    };
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 'use server'
 

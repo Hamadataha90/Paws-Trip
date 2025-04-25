@@ -1,15 +1,24 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Container, Row, Col, Badge, Button, Image, Spinner } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Badge,
+  Button,
+  Image,
+  Spinner,
+} from "react-bootstrap";
 import { GeoAltFill } from "react-bootstrap-icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaTruck } from "react-icons/fa";
 
-
 export default function ProductDetails({ product: initialProduct }) {
   const [product, setProduct] = useState(initialProduct);
-  const [selectedVariant, setSelectedVariant] = useState(product?.variants?.[0] || {});
+  const [selectedVariant, setSelectedVariant] = useState(
+    product?.variants?.[0] || {}
+  );
   const [mainImage, setMainImage] = useState(product?.images?.[0]?.src || "");
   const [quantity, setQuantity] = useState(1);
   const [cleanDescription, setCleanDescription] = useState("");
@@ -17,55 +26,53 @@ export default function ProductDetails({ product: initialProduct }) {
   const [loading, setLoading] = useState(!initialProduct); // لو مفيش initialProduct، اعرض loading
   const [error, setError] = useState(null);
 
-
   const estimatedDelivery = useMemo(() => {
     const locationKey = product.shippingLocation
-      ?.replace(/\(.*\)/, "")   // إزالة النص بين الأقواس مثل (US)
+      ?.replace(/\(.*\)/, "") // إزالة النص بين الأقواس مثل (US)
       .toLowerCase()
-      .trim();  // إزالة المسافات الزائدة
-  
+      .trim(); // إزالة المسافات الزائدة
+
     const normalizedLocationKey = {
       "united states": "usa",
-      "us": "usa",
-      "canada": "canada",
+      us: "usa",
+      canada: "canada",
       "united kingdom": "uk",
-      "uk": "uk",
-      "australia": "australia",
-      "uae": "uae",
-      "china": "china",
-      "germany": "germany",
-      "france": "france",
-      "japan": "japan",
+      uk: "uk",
+      australia: "australia",
+      uae: "uae",
+      china: "china",
+      germany: "germany",
+      france: "france",
+      japan: "japan",
       "south korea": "south korea",
     };
-  
+
     const deliveryTimes = {
-      "usa": "2-4 days",
-      "canada": "3-5 days",
-      "uk": "5-7 days",
-      "australia": "7-10 days",
-      "uae": "5-7 days",
-      "china": "10-15 days",
-      "germany": "5-7 days",
-      "france": "4-6 days",
-      "japan": "5-7 days",
+      usa: "2-4 days",
+      canada: "3-5 days",
+      uk: "5-7 days",
+      australia: "7-10 days",
+      uae: "5-7 days",
+      china: "10-15 days",
+      germany: "5-7 days",
+      france: "4-6 days",
+      japan: "5-7 days",
       "south korea": "5-7 days",
     };
-  
-    const locationKeyNormalized = normalizedLocationKey[locationKey] || locationKey;
-  
+
+    const locationKeyNormalized =
+      normalizedLocationKey[locationKey] || locationKey;
+
     // إذا كانت معلومات الشحن غير متوفرة
     if (locationKeyNormalized === "shipping info unavailable") {
       return "Shipping Info Unavailable";
     }
-  
+
     // إرجاع الوقت المحدد بناءً على الموقع
-    return locationKeyNormalized ? (deliveryTimes[locationKeyNormalized] || "Shipping Info Unavailable") : "Shipping Info Unavailable";
+    return locationKeyNormalized
+      ? deliveryTimes[locationKeyNormalized] || "Shipping Info Unavailable"
+      : "Shipping Info Unavailable";
   }, [product.shippingLocation]);
-  
-
-
-
 
   const router = useRouter();
 
@@ -82,7 +89,9 @@ export default function ProductDetails({ product: initialProduct }) {
     const matchedImage = product.images.find((img) =>
       img.variant_ids?.includes(Number(selectedVariant.id))
     );
-    setMainImage(matchedImage ? matchedImage.src : product.images[0]?.src || "");
+    setMainImage(
+      matchedImage ? matchedImage.src : product.images[0]?.src || ""
+    );
   }, [selectedVariant, product?.images]);
 
   // تنظيف الـ description
@@ -110,26 +119,41 @@ export default function ProductDetails({ product: initialProduct }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleVariantChange = useCallback((e) => {
-    const selected = product?.variants?.find((v) => String(v.id) === e.target.value);
-    setSelectedVariant(selected || {});
-  }, [product?.variants]);
+  const handleVariantChange = useCallback(
+    (e) => {
+      const selected = product?.variants?.find(
+        (v) => String(v.id) === e.target.value
+      );
+      setSelectedVariant(selected || {});
+    },
+    [product?.variants]
+  );
 
-  const handleThumbnailClick = useCallback((img) => {
-    setMainImage(img.src);
-    if (img.variant_ids?.length) {
-      const matchedVariantId = img.variant_ids[0];
-      const newVariant = product?.variants?.find((v) => v.id === matchedVariantId);
-      setSelectedVariant(newVariant || {});
-    }
-  }, [product?.variants]);
+  const handleThumbnailClick = useCallback(
+    (img) => {
+      setMainImage(img.src);
+      if (img.variant_ids?.length) {
+        const matchedVariantId = img.variant_ids[0];
+        const newVariant = product?.variants?.find(
+          (v) => v.id === matchedVariantId
+        );
+        setSelectedVariant(newVariant || {});
+      }
+    },
+    [product?.variants]
+  );
 
   const normalizeColor = useCallback((color) => {
-    const colorMap = { kaki: "khaki", grey: "gray", beige: "beige", navy: "navy" };
+    const colorMap = {
+      kaki: "khaki",
+      grey: "gray",
+      beige: "beige",
+      navy: "navy",
+    };
     const lowerColor = color.toLowerCase();
     const s = new Option().style;
     s.color = lowerColor;
-    return s.color !== "" ? lowerColor : (colorMap[lowerColor] || "#f5f5f5");
+    return s.color !== "" ? lowerColor : colorMap[lowerColor] || "#f5f5f5";
   }, []);
 
   const showNotification = (message, bgColor) => {
@@ -143,21 +167,16 @@ export default function ProductDetails({ product: initialProduct }) {
     setTimeout(() => notification.remove(), 2000);
   };
 
-
-
-
-
-  
   // const handleAddToCart = async () => {
   //   try {
   //     const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
-  
+
   //     if (!selectedVariant?.id || !quantity || !adjustedPrice || !mainImage) {
   //       throw new Error("Missing product information.");
   //     }
-  
+
   //     const color = normalizeColor(selectedVariant.title.split(" ")[0]);
-  
+
   //     const newItem = {
   //       id: selectedVariant.id,
   //       quantity: parseInt(quantity, 10),
@@ -166,14 +185,14 @@ export default function ProductDetails({ product: initialProduct }) {
   //       image: mainImage,
   //       color: color,
   //     };
-  
+
   //     const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
   //     if (itemIndex > -1) {
   //       currentCart[itemIndex].quantity += newItem.quantity;
   //     } else {
   //       currentCart.push(newItem);
   //     }
-  
+
   //     // إرسال السلة إلى API
   //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_2}/api/cart`, {
   //       method: "POST",
@@ -182,16 +201,16 @@ export default function ProductDetails({ product: initialProduct }) {
   //       },
   //       body: JSON.stringify({ cart: currentCart }),
   //     });
-  
+
   //     if (!response.ok) {
   //       throw new Error("Failed to update cart");
   //     }
-  
+
   //     const data = await response.json();
   //     console.log(data.message);  // رسالة نجاح من الـ API
-  
+
   //     localStorage.setItem("cart", JSON.stringify(currentCart));  // تحديث السلة في localStorage
-  
+
   //     const notification = document.createElement("div");
   //     notification.textContent = "Added to Cart!";
   //     notification.style.cssText = `
@@ -213,9 +232,6 @@ export default function ProductDetails({ product: initialProduct }) {
   //   }
   // };
 
-
-
-
   const handleAddToCart = useCallback(() => {
     try {
       setLoading(true);
@@ -233,7 +249,7 @@ export default function ProductDetails({ product: initialProduct }) {
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
-        sku: selectedVariant.sku // أضف sku
+        sku: selectedVariant.sku, // أضف sku
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -253,8 +269,6 @@ export default function ProductDetails({ product: initialProduct }) {
     }
   }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor]);
 
-
-
   const handleCheck = useCallback(() => {
     try {
       setLoading(true);
@@ -273,7 +287,7 @@ export default function ProductDetails({ product: initialProduct }) {
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
-        sku: selectedVariant.sku // أضف sku
+        sku: selectedVariant.sku, // أضف sku
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -286,15 +300,23 @@ export default function ProductDetails({ product: initialProduct }) {
       localStorage.setItem("cart", JSON.stringify(currentCart));
       router.push("/checkout");
     } catch (error) {
-      showNotification("Error proceeding to checkout. Please try again.", "#e74c3c");
+      showNotification(
+        "Error proceeding to checkout. Please try again.",
+        "#e74c3c"
+      );
       console.error("Error in handleCheck:", error);
     } finally {
       setLoading(false);
     }
-  }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor, router]);
+  }, [
+    selectedVariant,
+    quantity,
+    adjustedPrice,
+    mainImage,
+    normalizeColor,
+    router,
+  ]);
 
-
-  
   if (loading) {
     return (
       <Container className="mt-5 text-center">
@@ -329,18 +351,42 @@ export default function ProductDetails({ product: initialProduct }) {
             zIndex: 2000,
           }}
         >
-          <Spinner animation="border" variant="light" style={{ width: "3rem", height: "3rem" }} />
+          <Spinner
+            animation="border"
+            variant="light"
+            style={{ width: "3rem", height: "3rem" }}
+          />
         </div>
       )}
       <Row className="align-items-start justify-content-around">
-        <Col xs={12} md={4} style={isSticky ? { position: "sticky", top: "0", height: "100vh", overflowY: "overlay" } : {}}>
+        <Col
+          xs={12}
+          md={4}
+          style={
+            isSticky
+              ? {
+                  position: "sticky",
+                  top: "0",
+                  height: "100vh",
+                  overflowY: "overlay",
+                }
+              : {}
+          }
+        >
           <div className="text-center">
-            <div style={{ width: "100%", maxHeight: "800px", overflow: "hidden" }}>
+            <div
+              style={{ width: "100%", maxHeight: "800px", overflow: "hidden" }}
+            >
               <Image
                 src={mainImage}
                 alt="Product Image"
                 fluid
-                style={{ width: "100%", objectFit: "contain", maxHeight: "500px", borderRadius: "50px" }}
+                style={{
+                  width: "100%",
+                  objectFit: "contain",
+                  maxHeight: "500px",
+                  borderRadius: "50px",
+                }}
               />
             </div>
             <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
@@ -350,8 +396,16 @@ export default function ProductDetails({ product: initialProduct }) {
                     key={img.id}
                     src={img.src}
                     alt="Product Thumbnail"
-                    className={`thumbnail ${mainImage === img.src ? "border border-primary" : ""}`}
-                    style={{ width: "60px", height: "60px", objectFit: "cover", cursor: "pointer", borderRadius: "8px" }}
+                    className={`thumbnail ${
+                      mainImage === img.src ? "border border-primary" : ""
+                    }`}
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      objectFit: "cover",
+                      cursor: "pointer",
+                      borderRadius: "8px",
+                    }}
                     onClick={() => handleThumbnailClick(img)}
                   />
                 ))
@@ -362,78 +416,127 @@ export default function ProductDetails({ product: initialProduct }) {
           </div>
         </Col>
 
-
-
-
-         
-        <Col md={6} xs={12}  className="px-4 py-2 col-details">
+        <Col md={6} xs={12} className="px-4 py-2 col-details">
           <h1 className="mb-2">{product.title}</h1>
-          <Badge bg="secondary" className="mb-3">{product.product_type || "General"}</Badge>
+          <Badge bg="secondary" className="mb-3">
+            {product.product_type || "General"}
+          </Badge>
 
           <div className="mb-3 d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-3">
-              <p className="fs-4 fw-bold text-primary m-0">{adjustedPrice.toFixed(2)}</p>
-              <p className="fs-5 text-muted text-decoration-line-through m-0">{adjustedComparePrice.toFixed(2)}</p>
+              <p className="fs-4 fw-bold text-primary m-0">
+                {adjustedPrice.toFixed(2)}
+              </p>
+              <p className="fs-5 text-muted text-decoration-line-through m-0">
+                {adjustedComparePrice.toFixed(2)}
+              </p>
               <Badge bg="success">50% OFF</Badge>
             </div>
             {product.shippingLocation && (
               <div className="d-flex align-items-center gap-2 bg-light border rounded px-3 py-1">
                 <GeoAltFill size={20} className="text-primary" />
-                <p className="fw-semibold text-dark fs-6 m-0">SHIPS FROM: {product.shippingLocation}</p>
+                <p className="fw-semibold text-dark fs-6 m-0">
+                  SHIPS FROM: {product.shippingLocation}
+                </p>
               </div>
             )}
           </div>
 
           <div className="d-flex align-items-baseline gap-5 mb-3">
             {product.inventory && (
-              <p className={`fw-semibold ${product.inventory.includes("Out of Stock") ? "text-danger" : "text-success"}`}>
+              <p
+                className={`fw-semibold ${
+                  product.inventory.includes("Out of Stock")
+                    ? "text-danger"
+                    : "text-success"
+                }`}
+              >
                 {product.inventory}
               </p>
             )}
-            <select className="form-select" value={selectedVariant.id} onChange={handleVariantChange}>
-              {product.variants && product.variants.map((variant) => (
-                <option key={variant.id} value={variant.id}>{variant.title}</option>
-              ))}
+            <select
+              className="form-select"
+              value={selectedVariant.id}
+              onChange={handleVariantChange}
+            >
+              {product.variants &&
+                product.variants.map((variant) => (
+                  <option key={variant.id} value={variant.id}>
+                    {variant.title}
+                  </option>
+                ))}
             </select>
           </div>
 
-            <div className="d-flex justify-content-between align-items-center mt-4 w-100">
-                <div className="d-flex align-items-center gap-3">
-                  <Button variant="outline-danger" onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}>-</Button>
-                  <span className="text-success fw-bold">{quantity}</span>
-                  <Button variant="outline-danger" onClick={() => setQuantity((prev) => prev + 1)}>+</Button>
-                  <motion.span className="text-primary fw-bold ms-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                    Total: ${(adjustedPrice * quantity).toFixed(2)}
-                  </motion.span>
-                </div>
+          <div className="d-flex justify-content-between align-items-center mt-4 w-100">
+            <div className="d-flex align-items-center gap-3">
+              <Button
+                variant="outline-danger"
+                onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              >
+                -
+              </Button>
+              <span className="text-success fw-bold">{quantity}</span>
+              <Button
+                variant="outline-danger"
+                onClick={() => setQuantity((prev) => prev + 1)}
+              >
+                +
+              </Button>
+              <motion.span
+                className="text-primary fw-bold ms-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                Total: ${(adjustedPrice * quantity).toFixed(2)}
+              </motion.span>
+            </div>
 
-                {estimatedDelivery && (
-  <div className="d-flex align-items-center gap-2 ms-auto">
-    <FaTruck className="text-warning" /> 
-    <span className="text-dark fw-bold small text-nowrap">
-  Estimated Delivery: 
-  <span className="fw-semibold text-primary fs-6">{estimatedDelivery}</span>
-</span>
-
-  </div>
-)}
-
+            {estimatedDelivery && (
+              <div className="d-flex align-items-center gap-2 ms-auto">
+                <FaTruck className="text-warning" />
+                <span className="text-dark fw-bold small text-nowrap">
+                  Estimated Delivery:
+                  <span className="fw-semibold text-primary fs-6">
+                    {estimatedDelivery}
+                  </span>
+                </span>
               </div>
-
-
+            )}
+          </div>
 
           <div className="d-flex gap-3 mt-4">
-            <Button onClick={handleAddToCart} className="flex-grow-1" size="lg" disabled={loading}>
+            <Button
+              onClick={handleAddToCart}
+              className="flex-grow-1"
+              size="lg"
+              disabled={loading}
+            >
               Add to Cart 🛒
             </Button>
-            <Button onClick={handleCheck} variant="warning" className="flex-grow-1" size="lg" disabled={loading}>
+            <Button
+              onClick={handleCheck}
+              variant="warning"
+              className="flex-grow-1"
+              size="lg"
+              disabled={loading}
+            >
               Checkout 🛍️
             </Button>
           </div>
 
           <div className="mt-5">
             <div className="border p-3 rounded bg-light">
-              <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#ff6600", textTransform: "uppercase", textAlign: "center" }}>
+              <h2
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "1.5rem",
+                  color: "#ff6600",
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                }}
+              >
                 Loved by Thousands, Trusted by You!
               </h2>
               <br />

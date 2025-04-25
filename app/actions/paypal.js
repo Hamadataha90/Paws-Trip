@@ -42,7 +42,8 @@ export async function createPaypalPayment(amount, currency = "USD") {
   } catch (error) {
     console.error("PayPal API Error:", error.response?.data || error.message);
     throw new Error(
-      error.response?.data?.message || "Failed to create PayPal payment. Check server logs for details."
+      error.response?.data?.message ||
+        "Failed to create PayPal payment. Check server logs for details."
     );
   }
 }

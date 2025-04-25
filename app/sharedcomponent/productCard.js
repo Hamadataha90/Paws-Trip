@@ -36,7 +36,9 @@ const ProductCard = ({ product }) => {
       navy: "navy",
     };
     const lowerColor = color.toLowerCase();
-    return isValidCSSColor(lowerColor) ? lowerColor : (colorMap[lowerColor] || "#f5f5f5");
+    return isValidCSSColor(lowerColor)
+      ? lowerColor
+      : colorMap[lowerColor] || "#f5f5f5";
   };
 
   const showNotification = (message, bgColor) => {
@@ -69,7 +71,7 @@ const ProductCard = ({ product }) => {
         price: parseFloat(adjustedPrice),
         image: images[0].src,
         color: color,
-        sku: product.variants[0].sku // عدّلنا هنا
+        sku: product.variants[0].sku, // عدّلنا هنا
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -171,7 +173,9 @@ const ProductCard = ({ product }) => {
             <Card.Title>{product.title}</Card.Title>
             <Card.Text className="text-muted">{product.vendor}</Card.Text>
             <Card.Text className="fw-bold">
-              <del className="text-muted me-2">${adjustedComparePrice.toFixed(2)}</del>
+              <del className="text-muted me-2">
+                ${adjustedComparePrice.toFixed(2)}
+              </del>
               <span className="text-primary">${adjustedPrice.toFixed(2)}</span>
             </Card.Text>
           </Card.Body>
@@ -199,7 +203,11 @@ const ProductCard = ({ product }) => {
               </Button>
             </div>
           )}
-          <Button variant="outline-primary" onClick={handleViewProduct} disabled={loadingView}>
+          <Button
+            variant="outline-primary"
+            onClick={handleViewProduct}
+            disabled={loadingView}
+          >
             {loadingView ? "Loading..." : "View Product"}
           </Button>
         </div>
