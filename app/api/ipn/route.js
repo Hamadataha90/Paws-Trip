@@ -3,7 +3,7 @@ import { createHmac } from "crypto";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
-const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE;
+const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE || "https://humidityzone.myshopify.com/admin/api/2024-04";
 const SHOPIFY_HEADERS = {
   "Content-Type": "application/json",
   "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
@@ -119,6 +119,29 @@ export async function POST(req) {
         );
       }
 
+      // التحقق من الـ variant_id في Shopify
+      for (const item of items) {
+        console.log(`🔎 Checking variant_id ${item.variant_id} in Shopify`);
+        const variantResponse = await fetch(
+          `${SHOPIFY_API_BASE}/variants/${item.variant_id}.json`,
+          { headers: SHOPIFY_HEADERS }
+        );
+        const variantText = await variantResponse.text();
+        console.log(
+          `📥 Shopify variant response for variant_id ${item.variant_id}: Status ${variantResponse.status}, Body: ${variantText}`
+        );
+
+        if (!variantResponse.ok) {
+          console.error(
+            `❌ Variant ${item.variant_id} not found or inaccessible: ${variantResponse.status} - ${variantText}`
+          );
+          return NextResponse.json(
+            { error: `Invalid variant_id ${item.variant_id}: ${variantText}` },
+            { status: 400 }
+          );
+        }
+      }
+
       // إعداد line_items لـ Shopify
       const line_items = items.map((item) => ({
         variant_id: item.variant_id,
@@ -170,7 +193,11 @@ export async function POST(req) {
       );
 
       // التحقق من التوكن و API base
-      console.log(`🔍 Checking Shopify config: API_BASE=${SHOPIFY_API_BASE}, Token=${process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN ? 'Defined' : 'Undefined'}`);
+      console.log(
+        `🔍 Checking Shopify config: API_BASE=${SHOPIFY_API_BASE}, Token=${
+          process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN ? "Defined" : "Undefined"
+        }`
+      );
       if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
         console.error("❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined");
         return NextResponse.json(
@@ -187,15 +214,23 @@ export async function POST(req) {
       }
 
       // إرسال الأوردر لـ Shopify
-      console.log(`🚀 Sending order ${updatedOrder.id} to Shopify at ${SHOPIFY_API_BASE}/orders.json`);
-      const response = await fetch(`${SHOPIFY_API_BASE}/orders.json`, {
+      const fetchOptions = {
         method: "POST",
         headers: SHOPIFY_HEADERS,
         body: JSON.stringify(shopifyOrder),
+      };
+      console.log(
+        `🚀 Sending order ${updatedOrder.id} to Shopify at ${SHOPIFY_API_BASE}/orders.json with options:`,
+        JSON.stringify(fetchOptions, null, 2)
+      );
+      const response = await fetch(`${SHOPIFY_API_BASE}/orders.json`, {
+        ...fetchOptions,
       });
 
       const responseText = await response.text();
-      console.log(`📥 Shopify response for order ${updatedOrder.id}: Status ${response.status}, Body: ${responseText}`);
+      console.log(
+        `📥 Shopify response for order ${updatedOrder.id}: Status ${response.status}, Body: ${responseText}`
+      );
 
       if (!response.ok) {
         console.error(
@@ -203,7 +238,7 @@ export async function POST(req) {
         );
         return NextResponse.json(
           {
-            error: `Failed to sync order: ${response.status} - ${responseText}`
+            error: `Failed to sync order: ${response.status} - ${responseText}`,
           },
           { status: 500 }
         );
@@ -267,7 +302,7 @@ export async function POST(req) {
           pass: process.env.EMAIL_PASS,
         },
         debug: true,
-        logger: true
+        logger: true,
       });
 
       const mailOptions = {
@@ -281,13 +316,19 @@ export async function POST(req) {
             : `Your payment with transaction ID ${txn_id} is still pending. Status: ${status_text}`,
       };
 
-      console.log(`📧 Preparing to send email to ${buyer_email} with subject: ${mailOptions.subject}`);
+      console.log(
+        `📧 Preparing to send email to ${buyer_email} with subject: ${mailOptions.subject}`
+      );
 
       try {
         const info = await transporter.sendMail(mailOptions);
-        console.log(`📧 Email sent successfully to ${buyer_email}. Message ID: ${info.messageId}`);
+        console.log(
+          `📧 Email sent successfully to ${buyer_email}. Message ID: ${info.messageId}`
+        );
       } catch (error) {
-        console.error(`📧 Error sending email to ${buyer_email}: ${error.message}`);
+        console.error(
+          `📧 Error sending email to ${buyer_email}: ${error.message}`
+        );
         throw error;
       }
     } else {
