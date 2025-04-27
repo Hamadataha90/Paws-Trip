@@ -35,7 +35,8 @@ export async function POST(req) {
 
     const params = new URLSearchParams(bodyText);
     const txn_id = params.get("txn_id");
-    const buyer_email = params.get("buyer_email");
+    // const buyer_email = params.get("buyer_email");
+    const buyer_email = params.get("email");
     const status = parseInt(params.get("status"));
     const status_text = params.get("status_text");
     const amount = params.get("amount1");
