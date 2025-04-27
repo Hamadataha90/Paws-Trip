@@ -35,8 +35,7 @@ export async function POST(req) {
 
     const params = new URLSearchParams(bodyText);
     const txn_id = params.get("txn_id");
-    // const buyer_email = params.get("buyer_email");
-    const buyer_email = params.get("email");
+    let buyer_email = params.get("buyer_email");
     const status = parseInt(params.get("status"));
     const status_text = params.get("status_text");
     const amount = params.get("amount1");
@@ -53,6 +52,15 @@ export async function POST(req) {
     if (!txn_id) {
       console.error("❌ Missing txn_id in IPN");
       return NextResponse.json({ error: "Missing txn_id" }, { status: 400 });
+    }
+
+    // جلب customer_email من الداتابيز لو buyer_email مش موجود
+    if (!buyer_email) {
+      const emailResult = await sql`
+        SELECT customer_email FROM orders WHERE txn_id = ${txn_id};
+      `;
+      buyer_email = emailResult.rows[0]?.customer_email || null;
+      console.log(`📧 Fetched customer_email from database: ${buyer_email}`);
     }
 
     // تحديث قاعدة البيانات
@@ -253,7 +261,7 @@ export async function POST(req) {
         text:
           status >= 100
             ? `Your payment with transaction ID ${txn_id} has been successfully processed.`
-            : `Your payment with transaction ID ${txn_id} was not completed. Status: ${status}`,
+            : `Your payment with transaction ID ${txn_id} is still pending. Status: ${status_text}`,
       };
 
       try {
@@ -263,7 +271,7 @@ export async function POST(req) {
         console.error("📧 Error sending email:", error.message);
       }
     } else {
-      console.warn("⚠️ No buyer_email provided, skipping email");
+      console.warn("⚠️ No email available, skipping email");
     }
 
     return NextResponse.json(
