@@ -75,28 +75,28 @@ export async function POST() {
             first_name: order.customer_name?.split(' ')[0] || 'Unknown',
             last_name: order.customer_name?.split(' ').slice(1).join(' ') || '',
             email: order.customer_email || 'no-email@example.com',
-            phone: order.customer_phone || ''
+            phone: order.customer_phone ? `+${order.customer_phone}` : ''
           },
           billing_address: {
             address1: order.customer_address || 'Unknown',
             city: order.customer_city || 'Unknown',
             zip: order.customer_postal_code || '00000',
             country: order.customer_country || 'Unknown',
-            phone: order.customer_phone || ''
+            phone: order.customer_phone ? `+${order.customer_phone}` : ''
           },
           shipping_address: {
             address1: order.customer_address || 'Unknown',
             city: order.customer_city || 'Unknown',
             zip: order.customer_postal_code || '00000',
             country: order.customer_country || 'Unknown',
-            phone: order.customer_phone || ''
+            phone: order.customer_phone ? `+${order.customer_phone}` : ''
           },
           line_items,
           total_price: items.reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2),
           financial_status: 'paid',
           fulfillment_status: null,
           source_name: 'web',
-          note: `Order synced from custom checkout. Txn ID: +${order.txn_id}`
+          note: `Order synced from custom checkout. Txn ID: ${order.txn_id}`
         }
       };
 

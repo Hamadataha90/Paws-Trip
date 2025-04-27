@@ -128,20 +128,21 @@ export async function POST(req) {
             last_name:
               updatedOrder.customer_name?.split(" ").slice(1).join(" ") || "",
             email: updatedOrder.customer_email || "no-email@example.com",
+            phone: updatedOrder.customer_phone ? `+${updatedOrder.customer_phone}` : ""
           },
           billing_address: {
             address1: updatedOrder.customer_address || "Unknown",
             city: updatedOrder.customer_city || "Unknown",
             zip: updatedOrder.customer_postal_code || "00000",
             country: updatedOrder.customer_country || "Unknown",
-            phone: updatedOrder.customer_phone || "",
+            phone: updatedOrder.customer_phone ? `+${updatedOrder.customer_phone}` : ""
           },
           shipping_address: {
             address1: updatedOrder.customer_address || "Unknown",
             city: updatedOrder.customer_city || "Unknown",
             zip: updatedOrder.customer_postal_code || "00000",
             country: updatedOrder.customer_country || "Unknown",
-            phone: updatedOrder.customer_phone || "",
+            phone: updatedOrder.customer_phone ? `+${updatedOrder.customer_phone}` : ""
           },
           line_items,
           total_price: items
@@ -150,8 +151,8 @@ export async function POST(req) {
           financial_status: "paid",
           fulfillment_status: null,
           source_name: "web",
-          note: `Order synced from custom checkout. Txn ID: +${txn_id}`,
-        },
+          note: `Order synced from custom checkout. Txn ID: ${txn_id}`
+        }
       };
 
       console.log(
@@ -189,7 +190,7 @@ export async function POST(req) {
         );
         return NextResponse.json(
           {
-            error: `Failed to sync order: ${response.status} - ${responseText}`,
+            error: `Failed to sync order: ${response.status} - ${responseText}`
           },
           { status: 500 }
         );
