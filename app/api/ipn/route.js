@@ -170,6 +170,7 @@ export async function POST(req) {
       );
 
       // التحقق من التوكن و API base
+      console.log(`🔍 Checking Shopify config: API_BASE=${SHOPIFY_API_BASE}, Token=${process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN ? 'Defined' : 'Undefined'}`);
       if (!process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
         console.error("❌ SHOPIFY_ADMIN_API_ACCESS_TOKEN is not defined");
         return NextResponse.json(
@@ -186,6 +187,7 @@ export async function POST(req) {
       }
 
       // إرسال الأوردر لـ Shopify
+      console.log(`🚀 Sending order ${updatedOrder.id} to Shopify at ${SHOPIFY_API_BASE}/orders.json`);
       const response = await fetch(`${SHOPIFY_API_BASE}/orders.json`, {
         method: "POST",
         headers: SHOPIFY_HEADERS,
@@ -193,6 +195,8 @@ export async function POST(req) {
       });
 
       const responseText = await response.text();
+      console.log(`📥 Shopify response for order ${updatedOrder.id}: Status ${response.status}, Body: ${responseText}`);
+
       if (!response.ok) {
         console.error(
           `❌ Failed to sync order ${updatedOrder.id}: ${response.status} - ${responseText}`
@@ -205,15 +209,26 @@ export async function POST(req) {
         );
       }
 
-      const shopifyData = JSON.parse(responseText);
-      const shopifyOrderId = shopifyData.order?.id;
-
-      if (!shopifyOrderId) {
+      let shopifyData;
+      try {
+        shopifyData = JSON.parse(responseText);
+      } catch (parseError) {
         console.error(
-          `❌ No shopify_order_id returned for order ${updatedOrder.id}`
+          `❌ Failed to parse Shopify response for order ${updatedOrder.id}: ${parseError.message}`
         );
         return NextResponse.json(
-          { error: "No Shopify order ID returned" },
+          { error: `Failed to parse Shopify response: ${parseError.message}` },
+          { status: 500 }
+        );
+      }
+
+      const shopifyOrderId = shopifyData.order?.id;
+      if (!shopifyOrderId) {
+        console.error(
+          `❌ No shopify_order_id returned for order ${updatedOrder.id}. Response: ${responseText}`
+        );
+        return NextResponse.json(
+          { error: `No Shopify order ID returned: ${responseText}` },
           { status: 500 }
         );
       }
@@ -251,6 +266,8 @@ export async function POST(req) {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS,
         },
+        debug: true,
+        logger: true
       });
 
       const mailOptions = {
@@ -264,11 +281,14 @@ export async function POST(req) {
             : `Your payment with transaction ID ${txn_id} is still pending. Status: ${status_text}`,
       };
 
+      console.log(`📧 Preparing to send email to ${buyer_email} with subject: ${mailOptions.subject}`);
+
       try {
-        await transporter.sendMail(mailOptions);
-        console.log("📧 Email sent successfully to", buyer_email);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`📧 Email sent successfully to ${buyer_email}. Message ID: ${info.messageId}`);
       } catch (error) {
-        console.error("📧 Error sending email:", error.message);
+        console.error(`📧 Error sending email to ${buyer_email}: ${error.message}`);
+        throw error;
       }
     } else {
       console.warn("⚠️ No email available, skipping email");
