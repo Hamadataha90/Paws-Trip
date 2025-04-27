@@ -150,7 +150,7 @@ export async function POST(req) {
           financial_status: "paid",
           fulfillment_status: null,
           source_name: "web",
-          note: `Order synced from custom checkout. Txn ID: ${txn_id}`,
+          note: `Order synced from custom checkout. Txn ID: +${txn_id}`,
         },
       };
 
