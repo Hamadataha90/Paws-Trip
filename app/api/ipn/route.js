@@ -81,7 +81,7 @@ export async function POST(req) {
 
       // جلب الـ order_items
       const itemsResult = await sql`
-        SELECT variant_id, product_name, quantity, total_price, sku 
+        SELECT variant_id, product_name, varientName, quantity, total_price, sku 
         FROM order_items 
         WHERE order_id = ${updatedOrder.id};
       `;
@@ -116,6 +116,8 @@ export async function POST(req) {
         quantity: item.quantity,
         price: (item.total_price / item.quantity).toFixed(2),
         sku: item.sku || "",
+        title: item.product_name || "Unknown Product",
+        variant_title: item.varientName || "Unknown"
       }));
 
       // إعداد الأوردر لـ Shopify
