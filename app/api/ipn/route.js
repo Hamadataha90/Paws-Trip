@@ -3,10 +3,11 @@ import { createHmac } from "crypto";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
-const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE || "https://humidityzone.myshopify.com/admin/api/2024-04";
+const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE ;
 const SHOPIFY_HEADERS = {
   "Content-Type": "application/json",
   "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+  "Cache-Control": "no-cache",
 };
 
 export async function POST(req) {
