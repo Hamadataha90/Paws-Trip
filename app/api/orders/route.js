@@ -112,6 +112,7 @@ export async function POST(req) {
         customer_email,
         customer_address,
         customer_city,
+        customer_state,
         customer_postal_code,
         customer_country,
         customer_phone
@@ -124,6 +125,7 @@ export async function POST(req) {
         ${shippingInfo.email || null},
         ${shippingInfo.address || null},
         ${shippingInfo.city || null},
+        ${shippingInfo.state || '-'},
         ${shippingInfo.postalCode || null},
         ${shippingInfo.country || null},
         ${shippingInfo.phone || null}

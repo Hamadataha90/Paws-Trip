@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Container, Table, Form, Button, Pagination, Spinner, Modal, Badge } from 'react-bootstrap';
+import { Container, Card, Table, Form, Button, Pagination, Spinner, Modal, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import ClientSearch from './client-search';
 
 export default function OrdersPageClient() {
@@ -120,115 +120,175 @@ export default function OrdersPageClient() {
     }
   };
 
+  const totalPages = Math.ceil(total / limit);
+
   return (
-    <Container className="py-4">
-      <h1 className="h3 mb-4 text-primary">Orders</h1>
-      <ClientSearch
-        initialEmail={email}
-        initialTxnId={txnId}
-        initialSort={sort}
-        onSearch={handleSearch}
-      />
-      {loading ? (
-        <div className="text-center my-4">
-          <Spinner animation="border" variant="primary" />
-        </div>
-      ) : !email ? (
-        <p className="text-danger">Please enter an email to search for orders</p>
-      ) : orders.length === 0 ? (
-        <p className="text-muted">No orders found for this email.</p>
-      ) : (
-        <>
-          <div className="table-responsive">
-            <Table striped bordered hover className="mt-4">
-              <thead className="table-primary">
-                <tr>
-                  <th>ID</th>
-                  <th>Order Date</th>
-                  <th>Status</th>
-                  <th>Order ID</th>
-                  <th>Currency</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Address</th>
-                  <th>City</th>
-                  <th>Postal Code</th>
-                  <th>Country</th>
-                  <th>Phone</th>
-                  <th>Fulfillment Status</th>
-                  <th>Tracking Number</th>
-                  <th>Total</th>
-                  <th>Items</th>
-                  <th>Details</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>{order.id}</td>
-                    <td>{format(new Date(order.order_date), 'yyyy-MM-dd HH:mm:ss')}</td>
-                    <td>{getStatusBadge(order.status)}</td>
-                    <td>{order.txn_id}</td>
-                    <td>{order.currency || '-'}</td>
-                    <td>{order.customer_name}</td>
-                    <td>{order.customer_email}</td>
-                    <td>{order.customer_address || '-'}</td>
-                    <td>{order.customer_city || '-'}</td>
-                    <td>{order.customer_postal_code || '-'}</td>
-                    <td>{order.customer_country || '-'}</td>
-                    <td>{order.customer_phone ? `+${order.customer_phone}` : '-'}</td>
-                    <td>{order.fulfillment_status || '-'}</td>
-                    <td>{order.tracking_number || '-'}</td>
-                    <td>${parseFloat(order.total_price).toFixed(2)}</td>
-                    <td>{order.item_count} item{order.item_count !== 1 ? 's' : ''}</td>
-                    <td>
-                      <Link href={`/orders/details/${order.id}`} className="text-primary">
-                        Details
-                      </Link>
-                    </td>
-                    <td>
-                      {order.status !== 'Cancelled' && (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => openCancelModal(order.id)}
-                        >
-                          <i className="bi bi-x-circle me-1"></i>Cancel
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+    <Container className="py-4 px-3 ">
+      <Card className="mb-4 shadow-sm border-0">
+        <Card.Body>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h1 className="h3 text-primary">Orders</h1>
+            {orders.length > 0 && <Badge bg="primary">{total} Orders</Badge>}
           </div>
-          <Pagination>
-            <Pagination.Prev
-              onClick={() => handlePageChange(page > 1 ? page - 1 : 1)}
-              disabled={page === 1}
-            />
-            <Pagination.Next
-              onClick={() => handlePageChange(page < Math.ceil(total / limit) ? page + 1 : page)}
-              disabled={page >= Math.ceil(total / limit)}
-            />
-          </Pagination>
-          <Form action="/api/export-orders" method="POST" className="mt-4">
-            <input type="hidden" name="email" value={email} />
-            <input type="hidden" name="txn_id" value={txnId} />
-            <Button type="submit" variant="primary">
-              <i className="bi bi-download me-2"></i>Export CSV
-            </Button>
-          </Form>
-        </>
+          <ClientSearch
+            initialEmail={email}
+            initialTxnId={txnId}
+            initialSort={sort}
+            onSearch={handleSearch}
+          />
+        </Card.Body>
+      </Card>
+
+      {loading ? (
+        <Card className="text-center my-4 shadow-sm">
+          <Card.Body>
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-2">Loading orders...</p>
+          </Card.Body>
+        </Card>
+      ) : !email ? (
+        <Card className="text-center shadow-sm">
+          <Card.Body>
+            <p className="text-danger">Please enter an email to search for orders</p>
+          </Card.Body>
+        </Card>
+      ) : orders.length === 0 ? (
+        <Card className="text-center shadow-sm">
+          <Card.Body>
+            <p className="text-muted">No orders found for this email.</p>
+          </Card.Body>
+        </Card>
+      ) : (
+        <Card className="shadow-sm border-0">
+          <Card.Body>
+            <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+              <Table striped hover className="table-responsive">
+                <thead className="table-primary">
+                  <tr>
+                    <th style={{ width: '80px' }}>ID</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th>TXN_ID</th>
+                    <th>Currency</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th className="d-none d-lg-table-cell">Address</th>
+                    <th className="d-none d-lg-table-cell">City</th>
+                    <th className="d-none d-lg-table-cell">Postal Code</th>
+                    <th>Country</th>
+                    <th>State</th>
+                    <th>Phone</th>
+                    <th className="d-none d-lg-table-cell">Fulfillment Status</th>
+                    <th className="d-none d-lg-table-cell">Tracking Number</th>
+                    <th>Total</th>
+                    <th>Items</th>
+                    <th>Details</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    order ? (
+                      <tr key={order.id}>
+                        <td>{order.id}</td>
+                        <td>{format(new Date(order.order_date), 'yyyy-MM-dd HH:mm:ss')}</td>
+                        <td>{getStatusBadge(order.status)}</td>
+                        <td style={{ maxWidth: '100px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip>{order.txn_id || '-'}</Tooltip>}
+                          >
+                            <span>{order.txn_id || '-'}</span>
+                          </OverlayTrigger>
+                        </td>
+                        <td>{order.currency || '-'}</td>
+                        <td style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip>{order.customer_name || '-'}</Tooltip>}
+                          >
+                            <span>{order.customer_name || '-'}</span>
+                          </OverlayTrigger>
+                        </td>
+                        <td>{order.customer_email}</td>
+                        <td className="d-none d-lg-table-cell" style={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip>{order.customer_address || '-'}</Tooltip>}
+                          >
+                            <span>{order.customer_address || '-'}</span>
+                          </OverlayTrigger>
+                        </td>
+                        <td className="d-none d-lg-table-cell">{order.customer_city || '-'}</td>
+                        <td className="d-none d-lg-table-cell">{order.customer_postal_code || '-'}</td>
+                        <td>{order.customer_country || '-'}</td>
+                        <td>{order.customer_state || '-'}</td>
+                        <td>{order.customer_phone ? `+${order.customer_phone}` : '-'}</td>
+                        <td className="d-none d-lg-table-cell">{order.fulfillment_status || '-'}</td>
+                        <td className="d-none d-lg-table-cell">{order.tracking_number || '-'}</td>
+                        <td>${parseFloat(order.total_price).toFixed(2)}</td>
+                        <td>{order.item_count} item{order.item_count !== 1 ? 's' : ''}</td>
+                        <td>
+                          <Link href={`/orders/details/${order.id}`} className="text-primary">
+                            Details
+                          </Link>
+                        </td>
+                        <td>
+                          {order.status !== 'Cancelled' && (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => openCancelModal(order.id)}
+                            >
+                              <i className="bi bi-x-circle me-1"></i>Cancel
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ) : null
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+          <Card.Footer className="d-flex justify-content-between align-items-center">
+            <Pagination className="mb-0">
+              <Pagination.Prev
+                onClick={() => handlePageChange(page > 1 ? page - 1 : 1)}
+                disabled={page === 1}
+              />
+              {[...Array(totalPages)].map((_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === page}
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => handlePageChange(page < totalPages ? page + 1 : page)}
+                disabled={page >= totalPages}
+              />
+            </Pagination>
+            <Form action="/api/export-orders" method="POST">
+              <input type="hidden" name="email" value={email} />
+              <input type="hidden" name="txn_id" value={txnId} />
+              <Button type="submit" variant="outline-primary" size="sm">
+                <i className="bi bi-download me-2"></i>Export CSV
+              </Button>
+            </Form>
+          </Card.Footer>
+        </Card>
       )}
-      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
-        <Modal.Header closeButton>
+
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)} centered>
+        <Modal.Header closeButton className="bg-light">
           <Modal.Title>Confirm Cancellation</Modal.Title>
         </Modal.Header>
         <Modal.Body>Are you sure you want to cancel this order?</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
+          <Button variant="outline-secondary" onClick={() => setShowCancelModal(false)}>
             Close
           </Button>
           <Button variant="danger" onClick={handleCancel}>

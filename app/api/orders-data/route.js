@@ -12,7 +12,7 @@ export async function GET(request) {
 
     let ordersQuery = `
       SELECT o.*, 
-             COALESCE(SUM(oi.total_price) * 2, 0) as total_price,
+             COALESCE(SUM(oi.customer_paid) , 0) as total_price,
              COUNT(oi.id) as item_count
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
