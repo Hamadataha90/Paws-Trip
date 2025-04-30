@@ -41,7 +41,7 @@ const Footer = () => {
     <li className="mb-2">
       <Link href="/offers" passHref legacyBehavior>
         <a className="text-dark text-decoration-none">
-          💸 Offers
+        📦 Orders
         </a>
       </Link>
     </li>

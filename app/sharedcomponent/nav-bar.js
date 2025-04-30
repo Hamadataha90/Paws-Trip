@@ -129,7 +129,7 @@ const NavBar = () => {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mx-auto">
-          {["/", "/products", "/offers", "/contact"].map((path, idx) => (
+          {["/", "/products", "/orders", "/contact"].map((path, idx) => (
             <Nav.Link
               key={idx}
               onClick={() => handleNavigation(path)} // استبدال as={Link} بـ onClick

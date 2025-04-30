@@ -107,7 +107,7 @@ export default async function OrderDetailsPage({ params }) {
                   <td>${parseFloat(item.price).toFixed(2)}</td>
                   <td>{item.quantity || '-'}</td>
                   <td>{item.discount_rate ? `${parseFloat(item.discount_rate).toFixed(2)}%` : '-'}</td>
-                  <td>${parseFloat(order.total_price).toFixed(2)}</td>
+                  <td>${(parseFloat(item.total_price)*2).toFixed(2)}</td>
                   <td>${parseFloat(item.customer_paid).toFixed(2)}</td>
                   <td>{item.color || '-'}</td>
                   <td>{item.sku || '-'}</td>
