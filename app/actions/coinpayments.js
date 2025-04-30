@@ -32,7 +32,7 @@ export async function createCoinPaymentTransaction(formData) {
     currency2,
     buyer_email: email,
     ipn_url: "https://paws-trip.vercel.app/api/ipn",
-    success_url: `https://paws-trip.vercel.app/thanks?status=completed`,
+    success_url: `https://paws-trip.vercel.app/orders?status=completed`,
     cancel_url: "https://paws-trip.vercel.app/checkout",
     format: "json",
   };
