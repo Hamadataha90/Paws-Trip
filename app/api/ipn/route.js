@@ -244,19 +244,7 @@ export async function POST(req) {
     }
 
     // إرسال إيميل
-    if (buyer_email && status >= 100) {
-      // const emailResult = await sql`
-      //   SELECT customer_email FROM orders WHERE txn_id = ${txn_id};
-      // `;
-      // const email = emailResult.rows[0]?.customer_email || null;
-      // if (!email) {
-      //   console.error(`❌ No email found for txn_id: ${txn_id}`);
-      //   return NextResponse.json(
-      //     { error: `No email found for txn_id: ${txn_id}` },
-      //     { status: 404 }
-      //   );
-      // }
-
+    if (buyer_email) {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
