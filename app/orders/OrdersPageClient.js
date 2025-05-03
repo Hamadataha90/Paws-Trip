@@ -242,7 +242,7 @@ export default function OrdersPageClient() {
                     <th>Total</th>
                     <th>Items</th>
                     <th>Details</th>
-                    <th>Action</th>
+                    {/* <th>Action</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -341,7 +341,7 @@ export default function OrdersPageClient() {
                             Details
                           </Link>
                         </td>
-                        <td>
+                        {/* <td>
                           {order.status !== "Cancelled" && (
                             <Button
                               variant="outline-danger"
@@ -351,7 +351,7 @@ export default function OrdersPageClient() {
                               <i className="bi bi-x-circle me-1"></i>Cancel
                             </Button>
                           )}
-                        </td>
+                        </td> */}
                       </tr>
                     ) : null
                   )}
