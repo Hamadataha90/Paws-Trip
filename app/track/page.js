@@ -20,7 +20,7 @@ export default function TrackPage() {
 
     async function fetchTrackingData() {
       try {
-        const response = await fetch(`/api/track?number=${trackingNumber}`);
+        const response = await fetch(`/api/ipn?number=${trackingNumber}`);
         
         // التأكد من أن الاستجابة هي JSON قبل محاولة معالجتها
         const contentType = response.headers.get('Content-Type');
