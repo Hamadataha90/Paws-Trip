@@ -4,6 +4,9 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Container, Card, Alert, ListGroup, Badge } from 'react-bootstrap';
 
+// Force dynamic rendering to prevent prerendering at build time
+export const dynamic = 'force-dynamic';
+
 function TrackingContent({ trackingNumber, orderId }) {
   const [trackingData, setTrackingData] = useState(null);
   const [error, setError] = useState(null);
@@ -28,7 +31,7 @@ function TrackingContent({ trackingNumber, orderId }) {
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch tracking data .');
+          throw new Error('Failed to fetch tracking data from Shopify.');
         }
 
         const data = await response.json();
@@ -122,7 +125,7 @@ function TrackingContent({ trackingNumber, orderId }) {
                         : 'secondary'
                     }
                   >
-                    &nbsp;
+                     
                   </Badge>
                   <div>
                     <h6 className="mb-1">
