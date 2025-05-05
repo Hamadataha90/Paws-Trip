@@ -328,7 +328,7 @@ export default function OrdersPageClient() {
                         <td className="d-none d-lg-table-cell">
                           {order.tracking_number ? (
                             <Link
-                              href={`/track?number=${order.tracking_number}`}
+                              href={`/track?number=${order.tracking_number}&order_id=${order.shopify_order_id}`}
                             >
                               {order.tracking_number}
                             </Link>
