@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import TrackClient from './TrackClient';
 import { Container, Card } from 'react-bootstrap';
 
-// Force dynamic rendering to prevent prerendering
 export const dynamic = 'force-dynamic';
 
 export default async function TrackPage({ searchParams }) {
@@ -57,18 +56,24 @@ export default async function TrackPage({ searchParams }) {
   }
 
   return (
-    <Suspense
-      fallback={
-        <Container className="my-5">
-          <Card>
-            <Card.Body>
-              <Card.Text>Loading tracking information...</Card.Text>
-            </Card.Body>
-          </Card>
-        </Container>
-      }
-    >
-      <TrackClient trackingData={trackingData} error={error} />
-    </Suspense>
+    <div style={{ minHeight: '100vh' }} className="d-flex flex-column">
+      <Suspense
+        fallback={
+          <Container
+            fluid
+            className="d-flex align-items-center justify-content-center"
+            style={{ minHeight: '100vh' }}
+          >
+            <Card>
+              <Card.Body>
+                <Card.Text>Loading tracking information...</Card.Text>
+              </Card.Body>
+            </Card>
+          </Container>
+        }
+      >
+        <TrackClient trackingData={trackingData} error={error} />
+      </Suspense>
+    </div>
   );
 }

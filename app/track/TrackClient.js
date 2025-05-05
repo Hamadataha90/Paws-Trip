@@ -5,7 +5,11 @@ import { Container, Card, Alert, ListGroup, Badge } from 'react-bootstrap';
 export default function TrackClient({ trackingData, error }) {
   if (error) {
     return (
-      <Container className="my-5">
+      <Container
+        fluid
+        className="d-flex align-items-center justify-content-center"
+        style={{ minHeight: '100vh' }}
+      >
         <Alert variant="danger">{error}</Alert>
       </Container>
     );
@@ -13,7 +17,11 @@ export default function TrackClient({ trackingData, error }) {
 
   if (!trackingData) {
     return (
-      <Container className="my-5">
+      <Container
+        fluid
+        className="d-flex align-items-center justify-content-center"
+        style={{ minHeight: '100vh' }}
+      >
         <Alert variant="warning">No tracking information available.</Alert>
       </Container>
     );
@@ -22,10 +30,10 @@ export default function TrackClient({ trackingData, error }) {
   const { tracking_number, carrier, tracking_url, events } = trackingData;
 
   return (
-    <Container className="my-5">
-      <Card>
+    <Container className="my-5 d-flex flex-column" style={{ minHeight: '100vh' }}>
+      <Card className="flex-grow-1 d-flex flex-column">
         <Card.Header as="h5">Track Your Shipment</Card.Header>
-        <Card.Body>
+        <Card.Body className="d-flex flex-column flex-grow-1">
           <Card.Title>Tracking Number: {tracking_number}</Card.Title>
           {carrier && <Card.Text>Shipping Carrier: {carrier}</Card.Text>}
           {tracking_url && (
