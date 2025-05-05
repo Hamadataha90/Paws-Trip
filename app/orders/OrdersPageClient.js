@@ -326,7 +326,15 @@ export default function OrdersPageClient() {
                           {order.fulfillment_status || "-"}
                         </td>
                         <td className="d-none d-lg-table-cell">
-                          {order.tracking_number || "-"}
+                          {order.tracking_number ? (
+                            <Link
+                              href={`/track?number=${order.tracking_number}`}
+                            >
+                              {order.tracking_number}
+                            </Link>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td>${parseFloat(order.total_price).toFixed(2)}</td>
                         <td>
