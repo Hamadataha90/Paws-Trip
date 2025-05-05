@@ -62,7 +62,12 @@ export default function OrderDetailsClient({ order, items }) {
                   <strong>Fulfillment Status:</strong> <span>{order.fulfillment_status || '-'}</span>
                 </ListGroup.Item>
                 <ListGroup.Item className="d-flex justify-content-between">
-                  <strong>Tracking Number:</strong> <span>{order.tracking_number || '-'}</span>
+                  <strong>Tracking Number:</strong>
+                  <Link
+                      href={`/track?number=${order.tracking_number}&order_id=${order.shopify_order_id}`}
+                         >
+                           <span>{order.tracking_number || '-'}</span>
+                  </Link>
                 </ListGroup.Item>
               </ListGroup>
             </div>

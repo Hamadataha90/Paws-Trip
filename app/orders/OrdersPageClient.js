@@ -141,47 +141,37 @@ export default function OrdersPageClient() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <Container className="py-4 px-3 ">
+    <Container className="py-4 px-3">
       <Card className="mb-4 shadow-sm border-0">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h1 className="h3 text-primary">Orders</h1>
-
             {orders.length > 0 && (
               <div
                 className="d-inline-flex align-items-center gap-3 px-4 py-2 rounded-4 order-badge"
                 style={{
                   backdropFilter: "blur(10px)",
-                  background: "rgba(0, 0, 0, 0.1)", // تغيير الخلفية لتناسب اللون الفاتح
+                  background: "rgba(0, 0, 0, 0.1)",
                   border: "1px solid rgba(0, 0, 0, 0.2)",
-                  color: "black", // نص باللون الأسود عشان يكون واضح
+                  color: "black",
                   fontWeight: "500",
                   fontSize: "1rem",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
                 }}
               >
-                <FaBoxOpen size={20} style={{ color: "black" }} />
+                <FaBoxOpen size={20} />
                 <span
                   style={{
-                    background: "rgba(255, 255, 255, 0.7)", // خلفية الرقم تكون شفافة لكن بلون فاتح
+                    background: "rgba(255, 255, 255, 0.7)",
                     padding: "6px 14px",
                     borderRadius: "30px",
                     fontWeight: "bold",
-                    color: "black", // النص يكون باللون الأسود
+                    color: "black",
                     boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
                   }}
                 >
                   {total}
                 </span>
                 Orders
-                <style jsx>{`
-                  .order-badge:hover {
-                    transform: scale(1.05);
-                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-                    background: rgba(0, 0, 0, 0.1); // التأثير عند المرور
-                    cursor: pointer;
-                  }
-                `}</style>
               </div>
             )}
           </div>
@@ -218,151 +208,69 @@ export default function OrdersPageClient() {
       ) : (
         <Card className="shadow-sm border-0">
           <Card.Body>
-            <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-              <Table striped hover className="table-responsive">
+            <div className="table-responsive">
+              <Table striped hover>
                 <thead className="table-primary">
                   <tr>
-                    <th style={{ width: "80px" }}>ID</th>
+                    <th>ID</th>
                     <th>Order Date</th>
                     <th>Status</th>
                     <th>TXN_ID</th>
                     <th>Currency</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th className="d-none d-lg-table-cell">Address</th>
-                    <th className="d-none d-lg-table-cell">City</th>
-                    <th className="d-none d-lg-table-cell">Postal Code</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>Postal Code</th>
                     <th>Country</th>
                     <th>State</th>
                     <th>Phone</th>
-                    <th className="d-none d-lg-table-cell">
-                      Fulfillment Status
-                    </th>
-                    <th className="d-none d-lg-table-cell">Tracking Number</th>
+                    <th>Fulfillment</th>
+                    <th>Order_Id</th>
+                    <th>Tracking Number</th>
                     <th>Total</th>
                     <th>Items</th>
                     <th>Details</th>
-                    {/* <th>Action</th> */}
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) =>
-                    order ? (
-                      <tr key={order.id}>
-                        <td>{order.id}</td>
-                        <td>
-                          {format(
-                            new Date(order.order_date),
-                            "yyyy-MM-dd HH:mm:ss"
-                          )}
-                        </td>
-                        <td>{getStatusBadge(order.status)}</td>
-                        <td
-                          style={{
-                            maxWidth: "100px",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>{order.txn_id || "-"}</Tooltip>}
-                          >
-                            <span>{order.txn_id || "-"}</span>
-                          </OverlayTrigger>
-                        </td>
-                        <td>{order.currency || "-"}</td>
-                        <td
-                          style={{
-                            maxWidth: "120px",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={
-                              <Tooltip>{order.customer_name || "-"}</Tooltip>
-                            }
-                          >
-                            <span>{order.customer_name || "-"}</span>
-                          </OverlayTrigger>
-                        </td>
-                        <td>{order.customer_email}</td>
-                        <td
-                          className="d-none d-lg-table-cell"
-                          style={{
-                            maxWidth: "150px",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={
-                              <Tooltip>{order.customer_address || "-"}</Tooltip>
-                            }
-                          >
-                            <span>{order.customer_address || "-"}</span>
-                          </OverlayTrigger>
-                        </td>
-                        <td className="d-none d-lg-table-cell">
-                          {order.customer_city || "-"}
-                        </td>
-                        <td className="d-none d-lg-table-cell">
-                          {order.customer_postal_code || "-"}
-                        </td>
-                        <td>{order.customer_country || "-"}</td>
-                        <td>{order.customer_state || "-"}</td>
-                        <td>
-                          {order.customer_phone
-                            ? `+${order.customer_phone}`
-                            : "-"}
-                        </td>
-                        <td className="d-none d-lg-table-cell">
-                          {order.fulfillment_status || "-"}
-                        </td>
-                        <td className="d-none d-lg-table-cell">
-                          {order.tracking_number ? (
-                            <Link
-                              href={`/track?number=${order.tracking_number}&order_id=${order.shopify_order_id}`}
-                            >
-                              {order.tracking_number}
-                            </Link>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                        <td>${parseFloat(order.total_price).toFixed(2)}</td>
-                        <td>
-                          {order.item_count} item
-                          {order.item_count !== 1 ? "s" : ""}
-                        </td>
-                        <td>
-                          <Link
-                            href={`/orders/details/${order.id}`}
-                            className="text-primary"
-                          >
-                            Details
+                  {orders.map((order) => (
+                    <tr key={order.id}>
+                      <td>{order.id}</td>
+                      <td>{format(new Date(order.order_date), "yyyy-MM-dd HH:mm:ss")}</td>
+                      <td>{getStatusBadge(order.status)}</td>
+                      <td>{order.txn_id || "-"}</td>
+                      <td>{order.currency || "-"}</td>
+                      <td>{order.customer_name || "-"}</td>
+                      <td>{order.customer_email}</td>
+                      <td>{order.customer_address || "-"}</td>
+                      <td>{order.customer_city || "-"}</td>
+                      <td>{order.customer_postal_code || "-"}</td>
+                      <td>{order.customer_country || "-"}</td>
+                      <td>{order.customer_state || "-"}</td>
+                      <td>{order.customer_phone ? `+${order.customer_phone}` : "-"}</td>
+                      <td>{order.fulfillment_status || "-"}</td>
+                      <td>
+                        {order.shopify_order_id ? (
+                          <Link href={`/track?number=${order.tracking_number}&order_id=${order.shopify_order_id}`}>
+                            {order.shopify_order_id}
                           </Link>
-                        </td>
-                        {/* <td>
-                          {order.status !== "Cancelled" && (
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => openCancelModal(order.id)}
-                            >
-                              <i className="bi bi-x-circle me-1"></i>Cancel
-                            </Button>
-                          )}
-                        </td> */}
-                      </tr>
-                    ) : null
-                  )}
+                        ) : "-"}
+                      </td>
+                      <td>
+                        {order.tracking_number ? (
+                          <Link href={`/track?number=${order.tracking_number}&order_id=${order.shopify_order_id}`}>
+                            {order.tracking_number}
+                          </Link>
+                        ) : "-"}
+                      </td>
+                      <td>${parseFloat(order.total_price).toFixed(2)}</td>
+                      <td>{order.item_count} item{order.item_count !== 1 ? "s" : ""}</td>
+                      <td>
+                        <Link href={`/orders/details/${order.id}`} className="text-primary">Details</Link>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </Table>
             </div>
@@ -400,20 +308,13 @@ export default function OrdersPageClient() {
         </Card>
       )}
 
-      <Modal
-        show={showCancelModal}
-        onHide={() => setShowCancelModal(false)}
-        centered
-      >
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)} centered>
         <Modal.Header closeButton className="bg-light">
           <Modal.Title>Confirm Cancellation</Modal.Title>
         </Modal.Header>
         <Modal.Body>Are you sure you want to cancel this order?</Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="outline-secondary"
-            onClick={() => setShowCancelModal(false)}
-          >
+          <Button variant="outline-secondary" onClick={() => setShowCancelModal(false)}>
             Close
           </Button>
           <Button variant="danger" onClick={handleCancel}>
