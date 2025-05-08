@@ -8,8 +8,8 @@ import { Button, Card, Spinner } from "react-bootstrap";
 const ProductCard = ({ product }) => {
   const [hovered, setHovered] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [loadingView, setLoadingView] = useState(false); // State للـ loading عند View Product
-  const [loadingMessage, setLoadingMessage] = useState(""); // State للجملة العشوائية
+  const [loadingView, setLoadingView] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const router = useRouter();
 
   const PRICE_MULTIPLIER = 2;
@@ -19,8 +19,10 @@ const ProductCard = ({ product }) => {
   const adjustedPrice = originalPrice * PRICE_MULTIPLIER;
   const adjustedComparePrice = adjustedPrice * COMPARE_PRICE_MULTIPLIER;
 
-  // الصور بتيجي جاهزة مع الـ product من الـ props
   const images = product.images || [];
+
+  // Check if the first variant is out of stock
+  const isOutOfStock = product.variants?.[0]?.inventory?.includes("Out of Stock");
 
   const isValidCSSColor = (color) => {
     const s = new Option().style;
@@ -55,6 +57,10 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     try {
+      if (isOutOfStock) {
+        throw new Error("This product is out of stock.");
+      }
+
       const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
 
       if (!product.variants?.[0]?.id || !adjustedPrice || !images[0]?.src) {
@@ -71,7 +77,7 @@ const ProductCard = ({ product }) => {
         price: parseFloat(adjustedPrice),
         image: images[0].src,
         color: color,
-        sku: product.variants[0].sku, // عدّلنا هنا
+        sku: product.variants[0].sku,
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -83,14 +89,14 @@ const ProductCard = ({ product }) => {
 
       localStorage.setItem("cart", JSON.stringify(currentCart));
       showNotification("Added to Cart!", "#16a085");
+      setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
     } catch (error) {
       console.error("Error in handleAddToCart:", error.message);
-      alert("Error adding to cart. Please try again.");
+      showNotification(error.message, "#e74c3c");
     }
   };
 
-  // جمل عشوائية للتفاعل أثناء الـ loading
   const loadingMessages = [
     "Getting your product ready...",
     "Hold on, magic is happening!",
@@ -104,11 +110,11 @@ const ProductCard = ({ product }) => {
   };
 
   const handleViewProduct = () => {
-    setLoadingView(true); // تفعيل الـ loading
-    setLoadingMessage(getRandomMessage()); // اختيار جملة عشوائية
+    setLoadingView(true);
+    setLoadingMessage(getRandomMessage());
     setTimeout(() => {
-      router.push(`/products/${product.id}`); // الانتقال بعد تأخير
-    }, 1500); // تأخير 1.5 ثانية عشان التأثير يبان
+      router.push(`/products/${product.id}`);
+    }, 1500);
   };
 
   return (
@@ -133,7 +139,6 @@ const ProductCard = ({ product }) => {
             }}
           />
 
-          {/* الـ loading message في نص الكارد */}
           {loadingView && (
             <div
               style={{
@@ -198,8 +203,12 @@ const ProductCard = ({ product }) => {
             <div className="text-success fw-bold">✅ Added to Cart!</div>
           ) : (
             <div className="button-group d-flex justify-content-center gap-2">
-              <Button variant="primary" onClick={handleAddToCart}>
-                Add to Cart
+              <Button
+                variant="primary"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+              >
+                {isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </Button>
             </div>
           )}

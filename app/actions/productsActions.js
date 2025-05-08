@@ -136,19 +136,36 @@ export async function fetchProductById(id) {
     const data = await response.json();
     if (!data.product) throw new Error("Product not found");
 
-    const inventoryItemId = data.product.variants?.[0]?.inventory_item_id;
-    const inventory = inventoryItemId
-      ? await fetchInventory(inventoryItemId)
-      : "No Inventory Info";
+    // جلب المخزون لكل الفاريانتس
+    const variantInventories = await Promise.all(
+      data.product.variants.map(async (variant) => {
+        const inventory = variant.inventory_item_id
+          ? await fetchInventory(variant.inventory_item_id)
+          : "No Inventory Info";
+        return {
+          variantId: variant.id,
+          inventory,
+        };
+      })
+    );
+
     const metafields = await fetchMetafields(id);
 
-    return { ...data.product, inventory, ...metafields };
+    // إرجاع المنتج مع إضافة المخزون لكل فاريانت
+    return {
+      ...data.product,
+      variants: data.product.variants.map((variant) => ({
+        ...variant,
+        inventory: variantInventories.find((v) => v.variantId === variant.id)
+          ?.inventory || "No Inventory Info",
+      })),
+      ...metafields,
+    };
   } catch (error) {
     console.error("Shopify API Error (fetchProductById):", error);
     throw error;
   }
 }
-
 // جلب المنتجات المميزة مع كاش لمدة 5 دقايق
 export const fetchFeaturedProducts = cache(async () => {
   try {

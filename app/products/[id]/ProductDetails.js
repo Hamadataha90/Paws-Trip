@@ -23,14 +23,14 @@ export default function ProductDetails({ product: initialProduct }) {
   const [quantity, setQuantity] = useState(1);
   const [cleanDescription, setCleanDescription] = useState("");
   const [isSticky, setIsSticky] = useState(false);
-  const [loading, setLoading] = useState(!initialProduct); // لو مفيش initialProduct، اعرض loading
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState(null);
 
   const estimatedDelivery = useMemo(() => {
-    const locationKey = product.shippingLocation
-      ?.replace(/\(.*\)/, "") // إزالة النص بين الأقواس مثل (US)
+    const locationKey = product?.shippingLocation
+      ?.replace(/\(.*\)/, "")
       .toLowerCase()
-      .trim(); // إزالة المسافات الزائدة
+      .trim();
 
     const normalizedLocationKey = {
       "united states": "usa",
@@ -63,25 +63,26 @@ export default function ProductDetails({ product: initialProduct }) {
     const locationKeyNormalized =
       normalizedLocationKey[locationKey] || locationKey;
 
-    // إذا كانت معلومات الشحن غير متوفرة
     if (locationKeyNormalized === "shipping info unavailable") {
       return "Shipping Info Unavailable";
     }
 
-    // إرجاع الوقت المحدد بناءً على الموقع
     return locationKeyNormalized
       ? deliveryTimes[locationKeyNormalized] || "Shipping Info Unavailable"
       : "Shipping Info Unavailable";
-  }, [product.shippingLocation]);
+  }, [product?.shippingLocation]);
 
   const router = useRouter();
 
   const PRICE_MULTIPLIER = 2;
   const COMPARE_PRICE_MULTIPLIER = 2.0;
 
-  const originalPrice = parseFloat(selectedVariant.price || 0);
+  const originalPrice = parseFloat(selectedVariant?.price || 0);
   const adjustedPrice = originalPrice * PRICE_MULTIPLIER;
   const adjustedComparePrice = adjustedPrice * COMPARE_PRICE_MULTIPLIER;
+
+  // تحديد إذا كان الفاريانت Out of Stock
+  const isOutOfStock = selectedVariant?.inventory?.includes("Out of Stock");
 
   // جلب صورة الـ variant المختار
   useEffect(() => {
@@ -161,79 +162,17 @@ export default function ProductDetails({ product: initialProduct }) {
     notification.textContent = message;
     notification.style.cssText = `
       position: fixed; top: 80px; right: 160px; background: ${bgColor}; color: white; z-index: 1000;
-      padding: 10px 20px; border-radius: 5px; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     `;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 2000);
   };
 
-  // const handleAddToCart = async () => {
-  //   try {
-  //     const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
-
-  //     if (!selectedVariant?.id || !quantity || !adjustedPrice || !mainImage) {
-  //       throw new Error("Missing product information.");
-  //     }
-
-  //     const color = normalizeColor(selectedVariant.title.split(" ")[0]);
-
-  //     const newItem = {
-  //       id: selectedVariant.id,
-  //       quantity: parseInt(quantity, 10),
-  //       title: selectedVariant.title,
-  //       price: parseFloat(adjustedPrice),
-  //       image: mainImage,
-  //       color: color,
-  //     };
-
-  //     const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
-  //     if (itemIndex > -1) {
-  //       currentCart[itemIndex].quantity += newItem.quantity;
-  //     } else {
-  //       currentCart.push(newItem);
-  //     }
-
-  //     // إرسال السلة إلى API
-  //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_2}/api/cart`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ cart: currentCart }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update cart");
-  //     }
-
-  //     const data = await response.json();
-  //     console.log(data.message);  // رسالة نجاح من الـ API
-
-  //     localStorage.setItem("cart", JSON.stringify(currentCart));  // تحديث السلة في localStorage
-
-  //     const notification = document.createElement("div");
-  //     notification.textContent = "Added to Cart!";
-  //     notification.style.cssText = `
-  //       position: fixed; top: 58px; right: 170px; background: #16a085; color: white;
-  //       padding: 10px 20px; border-radius: 5px; z-index: 1000;
-  //     `;
-  //     document.body.appendChild(notification);
-  //     setTimeout(() => notification.remove(), 2000);
-  //   } catch (error) {
-  //     const errorNotification = document.createElement("div");
-  //     errorNotification.textContent = "Error adding to cart. Please try again.";
-  //     errorNotification.style.cssText = `
-  //       position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white;
-  //       padding: 10px 20px; border-radius: 5px; z-index: 1000;
-  //     `;
-  //     document.body.appendChild(errorNotification);
-  //     setTimeout(() => errorNotification.remove(), 2000);
-  //     console.error("Error in handleAddToCart:", error.message);
-  //   }
-  // };
-
   const handleAddToCart = useCallback(() => {
     try {
+      if (isOutOfStock) {
+        throw new Error("Selected variant is out of stock.");
+      }
       setLoading(true);
       const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -249,7 +188,7 @@ export default function ProductDetails({ product: initialProduct }) {
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
-        sku: selectedVariant.sku, // أضف sku
+        sku: selectedVariant.sku,
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -262,15 +201,18 @@ export default function ProductDetails({ product: initialProduct }) {
       localStorage.setItem("cart", JSON.stringify(currentCart));
       showNotification("Added to Cart!", "#16a085");
     } catch (error) {
-      showNotification("Error adding to cart. Please try again.", "#e74c3c");
+      showNotification(error.message, "#e74c3c");
       console.error("Error in handleAddToCart:", error.message);
     } finally {
       setLoading(false);
     }
-  }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor]);
+  }, [selectedVariant, quantity, adjustedPrice, mainImage, normalizeColor, isOutOfStock]);
 
   const handleCheck = useCallback(() => {
     try {
+      if (isOutOfStock) {
+        throw new Error("Selected variant is out of stock.");
+      }
       setLoading(true);
       const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -287,7 +229,7 @@ export default function ProductDetails({ product: initialProduct }) {
         price: parseFloat(adjustedPrice),
         image: mainImage,
         color,
-        sku: selectedVariant.sku, // أضف sku
+        sku: selectedVariant.sku,
       };
 
       const itemIndex = currentCart.findIndex((item) => item.id === newItem.id);
@@ -315,6 +257,7 @@ export default function ProductDetails({ product: initialProduct }) {
     mainImage,
     normalizeColor,
     router,
+    isOutOfStock,
   ]);
 
   if (loading) {
@@ -443,20 +386,21 @@ export default function ProductDetails({ product: initialProduct }) {
           </div>
 
           <div className="d-flex align-items-baseline gap-5 mb-3">
-            {product.inventory && (
+            {/* عرض المخزون للفاريانت المختار */}
+            {selectedVariant.inventory && (
               <p
                 className={`fw-semibold ${
-                  product.inventory.includes("Out of Stock")
+                  selectedVariant.inventory.includes("Out of Stock")
                     ? "text-danger"
                     : "text-success"
                 }`}
               >
-                {product.inventory}
+                {selectedVariant.inventory}
               </p>
             )}
             <select
               className="form-select"
-              value={selectedVariant.id}
+              value={selectedVariant.id || ""}
               onChange={handleVariantChange}
             >
               {product.variants &&
@@ -468,11 +412,19 @@ export default function ProductDetails({ product: initialProduct }) {
             </select>
           </div>
 
+          {/* رسالة اختيارية لو الفاريانت Out of Stock */}
+          {isOutOfStock && (
+            <p className="text-danger mb-3">
+              This variant is out of stock. Please select another variant.
+            </p>
+          )}
+
           <div className="d-flex justify-content-between align-items-center mt-4 w-100">
             <div className="d-flex align-items-center gap-3">
               <Button
                 variant="outline-danger"
                 onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                disabled={isOutOfStock}
               >
                 -
               </Button>
@@ -480,6 +432,7 @@ export default function ProductDetails({ product: initialProduct }) {
               <Button
                 variant="outline-danger"
                 onClick={() => setQuantity((prev) => prev + 1)}
+                disabled={isOutOfStock}
               >
                 +
               </Button>
@@ -511,7 +464,7 @@ export default function ProductDetails({ product: initialProduct }) {
               onClick={handleAddToCart}
               className="flex-grow-1"
               size="lg"
-              disabled={loading}
+              disabled={loading || isOutOfStock}
             >
               Add to Cart 🛒
             </Button>
@@ -520,7 +473,7 @@ export default function ProductDetails({ product: initialProduct }) {
               variant="warning"
               className="flex-grow-1"
               size="lg"
-              disabled={loading}
+              disabled={loading || isOutOfStock}
             >
               Checkout 🛍️
             </Button>
