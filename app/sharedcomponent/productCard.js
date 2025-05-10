@@ -103,6 +103,10 @@ const ProductCard = ({ product }) => {
     "Fetching the good stuff...",
     "Just a sec, loading awesomeness!",
     "Preparing your product adventure...",
+    "Almost there, hang tight!",
+    "Loading your product experience...",
+    "Just a moment, we’re on it!",
+    "Loading your product...",
   ];
 
   const getRandomMessage = () => {
@@ -199,7 +203,7 @@ const ProductCard = ({ product }) => {
             marginTop: "10px",
           }}
         >
-          {addedToCart ? (
+          {/* {addedToCart ? (
             <div className="text-success fw-bold">✅ Added to Cart!</div>
           ) : (
             <div className="button-group d-flex justify-content-center gap-2">
@@ -211,7 +215,7 @@ const ProductCard = ({ product }) => {
                 {isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </Button>
             </div>
-          )}
+          )} */}
           <Button
             variant="outline-primary"
             onClick={handleViewProduct}

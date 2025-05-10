@@ -81,8 +81,22 @@ export default function ProductDetails({ product: initialProduct }) {
   const adjustedPrice = originalPrice * PRICE_MULTIPLIER;
   const adjustedComparePrice = adjustedPrice * COMPARE_PRICE_MULTIPLIER;
 
-  // تحديد إذا كان الفاريانت Out of Stock
-  const isOutOfStock = selectedVariant?.inventory?.includes("Out of Stock");
+  // Define possible out-of-stock phrases
+const outOfStockPhrases = [
+  "out of stock",
+  "not available",
+  "sold out",
+  "unavailable",
+  "no stock",
+  "stock depleted",
+];
+
+// Check if the variant is out of stock
+const isOutOfStock = !selectedVariant?.inventory
+  ? true
+  : outOfStockPhrases.some((phrase) =>
+      selectedVariant.inventory.toLowerCase().includes(phrase.toLowerCase())
+    ) || !selectedVariant.inventory.trim();
 
   // جلب صورة الـ variant المختار
   useEffect(() => {
