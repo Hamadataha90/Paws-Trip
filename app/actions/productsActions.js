@@ -4,7 +4,7 @@ import { cache } from "react";
 const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE;
 const SHOPIFY_HEADERS = {
   "Content-Type": "application/json",
-  "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN, // متغير سري
+  "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
 };
 
 // جلب المنتجات مع كاش لمدة ساعة
@@ -13,7 +13,7 @@ export async function fetchProducts() {
     const response = await fetch(`${SHOPIFY_API_BASE}/products.json`, {
       method: "GET",
       headers: SHOPIFY_HEADERS,
-      next: { revalidate: 3600 }, // ساعة واحدة لأن بيانات المنتجات الأساسية مش بتتغير كتير
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok)
@@ -25,19 +25,32 @@ export async function fetchProducts() {
     if (!Array.isArray(data.products))
       throw new Error("Invalid products data format");
 
+    const allVariants = data.products.flatMap((p) => p.variants || []);
+    const inventoryItemIds = allVariants
+      .map((v) => v.inventory_item_id)
+      .filter(Boolean);
+
+    const inventoryMap = await fetchInventories(inventoryItemIds);
+
     const productsWithDetails = await Promise.all(
       data.products.map(async (product) => {
-        const inventoryItemId = product.variants?.[0]?.inventory_item_id;
-        const inventory = inventoryItemId
-          ? await fetchInventory(inventoryItemId)
-          : "No Inventory Info";
         const metafields = await fetchMetafields(product.id);
-
-        return { ...product, inventory, ...metafields };
+        const variantsWithInventory = (product.variants || []).map((variant) => ({
+          ...variant,
+          inventory:
+            inventoryMap.get(variant.inventory_item_id) || "No Inventory Info",
+        }));
+        return {
+          ...product,
+          variants: variantsWithInventory,
+          inventory: variantsWithInventory.some((v) => v.inventory !== "Out of Stock")
+            ? "In Stock"
+            : "Out of Stock",
+          ...metafields,
+        };
       })
     );
 
-    // تصفية المنتجات التي ليست متوفرة
     const availableProducts = productsWithDetails.filter(
       (product) => product.inventory !== "Out of Stock"
     );
@@ -49,15 +62,57 @@ export async function fetchProducts() {
   }
 }
 
-// جلب المخزون مع كاش لمدة 5 دقايق
-export async function fetchInventory(inventoryItemId) {
+// جلب منتج محدد مع كاش لمدة ساعة
+export async function fetchProductById(id) {
   try {
+    const response = await fetch(`${SHOPIFY_API_BASE}/products/${id}.json`, {
+      method: "GET",
+      headers: SHOPIFY_HEADERS,
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok)
+      throw new Error(
+        `Failed to fetch product: ${response.status} - ${response.statusText}`
+      );
+
+    const data = await response.json();
+    if (!data.product) throw new Error("Product not found");
+
+    const inventoryItemIds = data.product.variants
+      .map((v) => v.inventory_item_id)
+      .filter(Boolean);
+
+    const inventoryMap = await fetchInventories(inventoryItemIds);
+    const metafields = await fetchMetafields(id);
+
+    return {
+      ...data.product,
+      variants: data.product.variants.map((variant) => ({
+        ...variant,
+        inventory:
+          inventoryMap.get(variant.inventory_item_id) || "No Inventory Info",
+      })),
+      ...metafields,
+    };
+  } catch (error) {
+    console.error("Shopify API Error (fetchProductById):", error);
+    throw error;
+  }
+}
+
+// جلب المخزون لعدة inventory_item_ids دفعة واحدة
+export async function fetchInventories(inventoryItemIds = []) {
+  if (!inventoryItemIds.length) return new Map();
+
+  try {
+    const idsParam = inventoryItemIds.join(",");
     const response = await fetch(
-      `${SHOPIFY_API_BASE}/inventory_levels.json?inventory_item_ids=${inventoryItemId}`,
+      `${SHOPIFY_API_BASE}/inventory_levels.json?inventory_item_ids=${idsParam}`,
       {
         method: "GET",
         headers: SHOPIFY_HEADERS,
-        next: { revalidate: 300 }, // 5 دقايق لأن المخزون بيتغير بسرعة
+        next: { revalidate: 60 },
       }
     );
 
@@ -67,12 +122,21 @@ export async function fetchInventory(inventoryItemId) {
       );
 
     const data = await response.json();
-    return data.inventory_levels?.[0]?.available > 0
-      ? `In Stock (${data.inventory_levels[0].available})`
-      : "Out of Stock";
+
+    const inventoryMap = new Map();
+    for (const level of data.inventory_levels || []) {
+      inventoryMap.set(
+        level.inventory_item_id,
+        level.available > 0
+          ? `In Stock (${level.available})`
+          : "Out of Stock"
+      );
+    }
+
+    return inventoryMap;
   } catch (error) {
-    console.error("Shopify API Error (fetchInventory):", error);
-    return "Stock Info Unavailable";
+    console.error("Shopify API Error (fetchInventories):", error);
+    return new Map();
   }
 }
 
@@ -84,7 +148,7 @@ export async function fetchMetafields(productId) {
       {
         method: "GET",
         headers: SHOPIFY_HEADERS,
-        next: { revalidate: 3600 }, // ساعة لأن الـ metafields مش بتتغير كتير
+        next: { revalidate: 3600 },
       }
     );
 
@@ -119,53 +183,6 @@ function tryParseJSON(value) {
   }
 }
 
-// جلب منتج محدد مع كاش لمدة ساعة
-export async function fetchProductById(id) {
-  try {
-    const response = await fetch(`${SHOPIFY_API_BASE}/products/${id}.json`, {
-      method: "GET",
-      headers: SHOPIFY_HEADERS,
-      next: { revalidate: 3600 }, // ساعة لأن بيانات المنتج مش بتتغير كتير
-    });
-
-    if (!response.ok)
-      throw new Error(
-        `Failed to fetch product: ${response.status} - ${response.statusText}`
-      );
-
-    const data = await response.json();
-    if (!data.product) throw new Error("Product not found");
-
-    // جلب المخزون لكل الفاريانتس
-    const variantInventories = await Promise.all(
-      data.product.variants.map(async (variant) => {
-        const inventory = variant.inventory_item_id
-          ? await fetchInventory(variant.inventory_item_id)
-          : "No Inventory Info";
-        return {
-          variantId: variant.id,
-          inventory,
-        };
-      })
-    );
-
-    const metafields = await fetchMetafields(id);
-
-    // إرجاع المنتج مع إضافة المخزون لكل فاريانت
-    return {
-      ...data.product,
-      variants: data.product.variants.map((variant) => ({
-        ...variant,
-        inventory: variantInventories.find((v) => v.variantId === variant.id)
-          ?.inventory || "No Inventory Info",
-      })),
-      ...metafields,
-    };
-  } catch (error) {
-    console.error("Shopify API Error (fetchProductById):", error);
-    throw error;
-  }
-}
 // جلب المنتجات المميزة مع كاش لمدة 5 دقايق
 export const fetchFeaturedProducts = cache(async () => {
   try {
@@ -176,7 +193,7 @@ export const fetchFeaturedProducts = cache(async () => {
       {
         method: "GET",
         headers: SHOPIFY_HEADERS,
-        next: { revalidate: 300 }, // زيادة الوقت لـ 5 دقايق
+        next: { revalidate: 300 },
       }
     );
 
