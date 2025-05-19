@@ -6,9 +6,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif; /* Default font */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer & Edge */
+  font-family: 'Inter', sans-serif;
+  /* Default font */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer & Edge */
 }
 
 /* Support Arabic language */
@@ -21,30 +24,78 @@ html[lang="ar"] * {
   display: none;
 }
 
-/* 🔹 Root variables */
+
+
+
+
+/* 🌈 Theme variables */
 :root {
-  --primary-color: #007bff;
-  --secondary-color: #6c757d;
-  --background-light: #ffffff;
-  --background-dark: #1a1a1a;
-  --text-light: #333;
-  --text-dark: #f5f5f5;
+  --background: white;
+  --foreground: white;
+  --primary-color: #e83249;
+  --primary-color-dark: #3700B3;
+  --secondary-color: #fce6e9;
+  --background-navbar: white;
+  --lang-icon: black;
+  --button-background: transparent;
+  --button-color: white;
+  --card-background: white;
+  --title-color: black;
+  --btn-color: #e83249;
+  --tab-color: #e83249;
+  --logo-color: white;
+  --order-btn-color: #e83249;
+  --btn-order: white;
+}
+
+/* 🌙 Dark mode styles */
+[data-theme='dark'] {
+  --background: black;
+  --foreground: black;
+  --secondary-color: #151818;
+  --background-navbar: black;
+  --lang-icon: white;
+  --primary-color: black;
+  --button-background: #e83249;
+  --primary-color-dark: white;
+  --button-color: white;
+  --card-background: #151818;
+  --title-color: white;
+  --btn-color: white;
+  --tab-color: #e83249;
+  --logo-color: #e83249;
+  --btn-order: black;
+  --order-btn-color: white;
 }
 
 /* 🌞 Light mode styles */
 body {
-  background-color: var(--background-light);
-  color: var(--text-light);
-  font-size: 1rem; /* 16px */
+  background: var(--background) !important;
+  color: var(--foreground);
+  font-size: 1rem;
   line-height: 1.6;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+  /* Prevent horizontal scrolling */
+}
+.toggle-theme-btn{
+  top: 20px;
+  right: 20px;
+  background-color: var(--button-background);
+  color: var(--button-color);
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 🌙 Dark mode styles */
-[data-theme="dark"] {
-  background-color: var(--background-dark);
-  color: var(--text-dark);
+.text-center {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin-bottom: 1rem;
 }
+
 
 /* 🛒 Product details section */
 .col-details {
@@ -86,7 +137,8 @@ body {
 .free-shipping-banner {
   background: linear-gradient(135deg, #ef9d89, #feb47b);
   color: #fff;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem;
+  /* 18px */
   font-weight: bold;
   padding: 12px;
   text-align: center;
@@ -110,6 +162,7 @@ body {
     transform: scale(1);
     opacity: 0.9;
   }
+
   to {
     transform: scale(1.05);
     opacity: 1;
@@ -129,17 +182,20 @@ body {
 
 /* ✅ Typography improvements */
 h1 {
-  font-size: 2rem; /* 32px */
+  font-size: 2rem;
+  /* 32px */
   font-weight: 700;
 }
 
 h2 {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem;
+  /* 24px */
   font-weight: 600;
 }
 
 p {
-  font-size: 1rem; /* 16px */
+  font-size: 1rem;
+  /* 16px */
   line-height: 1.6;
 }
 
@@ -173,9 +229,12 @@ img {
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(6px);
   }
@@ -184,9 +243,17 @@ img {
 .fade-in {
   animation: fadeIn 0.6s ease-in;
 }
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card-hover {
@@ -220,5 +287,3 @@ img {
     gap: 8px;
   }
 }
-
-

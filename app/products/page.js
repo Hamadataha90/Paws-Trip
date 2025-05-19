@@ -17,7 +17,7 @@ export default async function ProductsPage() {
 
   return (
     <Container fluid className="mt-5 w-75 mx-auto">
-      <h1 className="text-center display-5 fw-bold mb-4">
+      <h1 className="title text-center display-5 fw-bold mb-4">
         🛍️ Browse Our Collection
       </h1>
       <hr className="my-5" />
