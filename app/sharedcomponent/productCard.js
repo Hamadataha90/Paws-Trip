@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
   const [loadingMessage, setLoadingMessage] = useState("");
   const router = useRouter();
 
-  const PRICE_MULTIPLIER = 2;
+  const PRICE_MULTIPLIER = 1;
   const COMPARE_PRICE_MULTIPLIER = 2.0;
 
   const originalPrice = parseFloat(product.variants?.[0]?.price || 0);

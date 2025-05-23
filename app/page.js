@@ -11,7 +11,7 @@ export default async function HomePage() {
       <h1 className="text-center display-4 fw-bold mb-3">
         Where Pet Journeys Begin — <span className="text-primary">Paws-Trip</span>
       </h1>
-      <p className="text-center fs-5 text-muted mb-1">
+      <p className="  text-center fs-5 text-secondary mb-1">
         Your trusted companion for stylish and stress-free pet travel 🐾
       </p>
       <p className="text-center fs-6 text-secondary mb-5">

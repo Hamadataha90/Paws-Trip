@@ -4,81 +4,64 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-light text-dark py-4 mt-5 shadow-sm">
+    <footer className="footer-section py-4 mt-5 shadow-sm">
       <Container>
         <Row className="text-center text-md-start">
           {/* About Section */}
-<Col md={4} className="mb-3">
-  <h5 className="fw-bold mb-2">🐾 Paws-Trip</h5>
-  <p className="text-muted mb-2">Your Pet-Friendly Travel Companion</p>
-  <hr />
-  <div className="text-muted">
-    <p className="mb-1">🧳 Premium Travel Gear</p>
-    <p className="mb-1">🐶 Comfort for Your Pets</p>
-    <p className="mb-1">✈️ Stress-Free Adventures</p>
-  </div>
-</Col>
+          <Col md={4} className="mb-3">
+            <h5 className="fw-bold mb-2">🐾 Paws-Trip</h5>
+            <p className="footer-subtext mb-2">Your Pet-Friendly Travel Companion</p>
+            <hr />
+            <div className="footer-subtext">
+              <p className="mb-1">🧳 Premium Travel Gear</p>
+              <p className="mb-1">🐶 Comfort for Your Pets</p>
+              <p className="mb-1">✈️ Stress-Free Adventures</p>
+            </div>
+          </Col>
 
-
-         {/* Quick Links */}
-<Col md={4} className="mb-3">
-  <h5 className="fw-bold mb-3">🔗 Quick Links</h5>
-  <ul className="list-unstyled">
-    <li className="mb-2">
-      <Link href="/" passHref legacyBehavior>
-        <a className="text-dark text-decoration-none">
-          🏠 Home
-        </a>
-      </Link>
-    </li>
-    <li className="mb-2">
-      <Link href="/products" passHref legacyBehavior>
-        <a className="text-dark text-decoration-none">
-          🛍️ Products
-        </a>
-      </Link>
-    </li>
-    <li className="mb-2">
-      <Link href="/orders" passHref legacyBehavior>
-        <a className="text-dark text-decoration-none">
-        📦 Orders
-        </a>
-      </Link>
-    </li>
-  </ul>
-</Col>
-
+          {/* Quick Links */}
+          <Col md={4} className="mb-3">
+            <h5 className="fw-bold mb-3">🔗 Quick Links</h5>
+            <ul className="list-unstyled">
+              <li className="mb-2">
+                <Link href="/" passHref legacyBehavior>
+                  <a className="footer-link">🏠 Home</a>
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link href="/products" passHref legacyBehavior>
+                  <a className="footer-link">🛍️ Products</a>
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link href="/orders" passHref legacyBehavior>
+                  <a className="footer-link">📦 Orders</a>
+                </Link>
+              </li>
+            </ul>
+          </Col>
 
           {/* Contact Section */}
-<Col md={4} className="mb-3">
-  <h5 className="fw-bold mb-3">📞 Contact Us</h5>
-  <p className="mb-2">
-    📧 <a href="mailto:support@paws-trip.com" className="text-dark text-decoration-none">
-      support@paws-trip.com
-    </a>
-  </p>
-  <p className="mb-2">
-    📱 <a href="tel:+1234567890" className="text-dark text-decoration-none">
-      +1 234 567 890
-    </a>
-  </p>
-  <p className="mb-0">
-    📍 123 Fashion St, New York, USA
-  </p>
-</Col>
-
-
+          <Col md={4} className="mb-3">
+            <h5 className="fw-bold mb-3">📞 Contact Us</h5>
+            <p className="mb-2">
+              📧 <a href="mailto:support@paws-trip.com" className="footer-link">support@paws-trip.com</a>
+            </p>
+            <p className="mb-2">
+              📱 <a href="tel:+1234567890" className="footer-link">+1 234 567 890</a>
+            </p>
+            <p className="mb-0 footer-subtext">📍 123 Fashion St, New York, USA</p>
+          </Col>
         </Row>
 
-       {/* Copyright */}
-<Row className="text-center mt-4">
-  <Col>
-    <p className="mb-0 text-muted">
-      &copy; {new Date().getFullYear()} <strong>Paws-Trip</strong> 🐾 — All Rights Reserved.
-    </p>
-  </Col>
-</Row>
-
+        {/* Copyright */}
+        <Row className="text-center mt-4">
+          <Col>
+            <p className="mb-0 footer-subtext">
+              &copy; {new Date().getFullYear()} <strong>Paws-Trip</strong> 🐾 — All Rights Reserved.
+            </p>
+          </Col>
+        </Row>
       </Container>
     </footer>
   );

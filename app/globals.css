@@ -7,31 +7,25 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  /* Default font */
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* Internet Explorer & Edge */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer & Edge */
 }
 
-/* Support Arabic language */
+/* Arabic language font */
 html[lang="ar"] * {
   font-family: 'Cairo', sans-serif;
 }
 
-/* 🚀 Hide scrollbar in Webkit Browsers */
+/* Hide scrollbar in Webkit Browsers */
 *::-webkit-scrollbar {
   display: none;
 }
 
-
-
-
-
-/* 🌈 Theme variables */
+/* 🌈 Theme Variables */
 :root {
+  /* Colors */
   --background: white;
-  --foreground: white;
+  --foreground: #333;
   --primary-color: #e83249;
   --primary-color-dark: #3700B3;
   --secondary-color: #fce6e9;
@@ -46,18 +40,43 @@ html[lang="ar"] * {
   --logo-color: white;
   --order-btn-color: #e83249;
   --btn-order: white;
+  --text-color: #333;
+  --text-color-muted: #777;
+
+  /* Spacing */
+  --padding-small: 8px;
+  --padding-medium: 12px;
+  --padding-large: 20px;
+
+  /* Border Radius */
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0px 6px 15px rgba(0, 0, 0, 0.12);
+
+  /* Transitions */
+  --transition-fast: 0.2s;
+  --transition-medium: 0.3s;
+  --transition-slow: 0.5s;
+
+  /* Gradient */
+  --gradient-main: linear-gradient(135deg, #ef9d89, #feb47b);
 }
 
-/* 🌙 Dark mode styles */
+/* 🌙 Dark Theme Variables */
 [data-theme='dark'] {
-  --background: black;
-  --foreground: black;
+  --background: #000;
+  --foreground: white;
   --secondary-color: #151818;
   --background-navbar: black;
   --lang-icon: white;
   --primary-color: black;
-  --button-background: #e83249;
   --primary-color-dark: white;
+  --button-background: #e83249;
   --button-color: white;
   --card-background: #151818;
   --title-color: white;
@@ -66,180 +85,278 @@ html[lang="ar"] * {
   --logo-color: #e83249;
   --btn-order: black;
   --order-btn-color: white;
+  --text-color: #eee;
+  --text-color-muted: #aaa;
 }
 
-/* 🌞 Light mode styles */
+/* 🌞 Body Styling */
 body {
   background: var(--background) !important;
-  color: var(--foreground);
+  color: var(--text-color);
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: hidden;
-  /* Prevent horizontal scrolling */
 }
-.toggle-theme-btn{
+
+/* 🌓 Theme Toggle Button */
+.toggle-theme-btn {
   top: 20px;
   right: 20px;
   background-color: var(--button-background);
   color: var(--button-color);
   border: none;
-  padding: 10px;
+  padding: var(--padding-small);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
-.text-center {
+/* 📝 Text Styles */
+.text-center, .title {
   font-size: 2rem;
   font-weight: 700;
   color: var(--title-color);
   margin-bottom: 1rem;
 }
 
+.text-muted {
+  color: var(--text-color-muted);
+  font-size: 1rem;
+  font-weight: 400;
+}
 
-/* 🛒 Product details section */
+/* 🛒 Product Details Section */
 .col-details {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* margin-left: 150px; */
+  color: var(--text-color);
 }
 
 .col-details::-webkit-scrollbar {
   display: none;
 }
 
-/* 🖼️ Product image styling */
+/* 🖼️ Product Image Styling */
 .image-container {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-large);
   overflow: hidden;
   position: relative;
-  padding: 5px;
-  background: linear-gradient(135deg, var(--primary-color), #ffb199);
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.12);
-  transition: all 0.3s ease-in-out;
+  padding: var(--padding-small);
+  background: var(--gradient-main);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-medium) ease-in-out;
 }
 
 .image-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  border-radius: var(--radius-medium);
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
 }
 
 .image-container:hover img {
   transform: scale(1.07);
 }
 
-/* 🚚 Free shipping banner */
+.product-description {
+  padding: var(--padding-medium);
+  background: var(--card-background);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-md);
+  margin-top: var(--padding-large);
+  margin-bottom: var(--padding-large);
+  transition: all var(--transition-medium) ease-in-out;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid var(--card-background);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-lg);
+  background-clip: padding-box;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 🚚 Free Shipping Banner */
 .free-shipping-banner {
-  background: linear-gradient(135deg, #ef9d89, #feb47b);
-  color: #fff;
+  background: var(--gradient-main);
+  color: var(--btn-order);
   font-size: 1.125rem;
-  /* 18px */
   font-weight: bold;
-  padding: 12px;
+  padding: var(--padding-medium);
   text-align: center;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   text-transform: uppercase;
   letter-spacing: 1px;
   width: 100%;
-  max-width: 100%;
   z-index: 999;
   animation: pulse 1.5s infinite alternate;
 }
 
-/* Dark mode support for banner */
-/* [data-theme="dark"] .free-shipping-banner {
-  background: linear-gradient(135deg, #222, #444);
-} */
 
-/* ✨ Pulse animation */
+.zoom-level {
+  color: var(--text-color);
+  font-size: 1.125rem;
+  font-weight: bold;
+  padding: var(--padding-medium);
+  text-align: center;
+}
+
+/* ✨ Pulse Animation */
 @keyframes pulse {
   from {
     transform: scale(1);
     opacity: 0.9;
   }
-
   to {
     transform: scale(1.05);
     opacity: 1;
   }
 }
 
-/* 🎥 Product description video */
+/* 🎥 Product Video Styling */
 .product-description video {
   max-width: 100%;
   max-height: 400px;
   width: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: var(--radius-medium);
   display: block;
   margin: 0 auto;
 }
 
-/* ✅ Typography improvements */
+/* ✅ Typography Elements */
 h1 {
   font-size: 2rem;
-  /* 32px */
   font-weight: 700;
+  color: var(--title-color);
 }
 
 h2 {
   font-size: 1.5rem;
-  /* 24px */
   font-weight: 600;
+  color: var(--title-color);
 }
+h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--title-color);
+}
+h4 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--title-color);
+}
+h5 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--title-color);
+}
+h6 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--title-color);
+}
+
 
 p {
   font-size: 1rem;
-  /* 16px */
-  line-height: 1.6;
+  font-weight: 400;
+  color: var(--text-color);
 }
+a {
+  color: var(--btn-color);
+  text-decoration: none;
+  transition: color var(--transition-medium);
+}
+a:hover {
+  color: var(--primary-color);
+}
+/* 🖱️ Button Styles */
 
 button {
   cursor: pointer;
   border: none;
   outline: none;
 }
+button.primary {
+  background-color: var(--btn-color);
+  color: var(--button-background);
+  padding: var(--padding-small) var(--padding-medium);
+  border-radius: var(--radius-medium);
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color var(--transition-medium), transform var(--transition-medium);
+}
+button.primary:hover {
+  background-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+button.secondary {
+  background-color: var(--background-navbar);
+  color: var(--text-color);
+  padding: var(--padding-small) var(--padding-medium);
+  border-radius: var(--radius-medium);
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color var(--transition-medium), transform var(--transition-medium);
+}
+button.secondary:hover {
+  background-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+button.outline {
+  background-color: transparent;
+  color: var(--btn-color);
+  padding: var(--padding-small) var(--padding-medium);
+  border-radius: var(--radius-medium);
+  border: 2px solid var(--btn-color);
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color var(--transition-medium), transform var(--transition-medium);
+}
+button.outline:hover {
+  background-color: var(--btn-color);
+  color: var(--button-background);
+  transform: translateY(-2px);
+}
+button.disabled {
+  background-color: var(--text-color-muted);
+  color: var(--button-background);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+button.disabled:hover {
+  background-color: var(--text-color-muted);
+  transform: none;
+}
+/* 🖼️ Image Styles */
 
 img {
   max-width: 100%;
   height: auto;
   display: block;
+  margin: 0 auto;
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
 }
+/* 📱 Responsive Design */
 
-
-
-
-/* .checkout{
-  display: flex;
-  justify-content: space-between !important;
-  align-items: center;
-  padding: 20px;
-  gap: 5px !important;
-} */
-
-
-
+/* 🧭 Scroll Indicator */
 .scroll-indicator-icon {
   animation: bounce 1.5s infinite;
 }
 
 @keyframes bounce {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(6px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
 }
 
+/* 🌫️ Fade Animation */
 .fade-in {
   animation: fadeIn 0.6s ease-in;
 }
@@ -249,31 +366,32 @@ img {
     opacity: 0;
     transform: translateY(10px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* 📦 Card Hover Effects */
 .card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 1rem;
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+  border-radius: var(--radius-large);
   overflow: hidden;
 }
 
 .card-hover:hover {
   transform: translateY(-8px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-img-top {
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
+  border-top-left-radius: var(--radius-large);
+  border-top-right-radius: var(--radius-large);
 }
 
+/* 🔘 Button Group Styling */
 .button-group {
-  transition: opacity 0.4s ease;
+  transition: opacity var(--transition-medium);
 }
 
 .button-group button {
@@ -286,4 +404,27 @@ img {
     flex-direction: column;
     gap: 8px;
   }
+}
+
+
+/* Footer styles based on theme variables */
+.footer-section {
+  background-color: var(--background-navbar);
+  color: var(--title-color);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.footer-link {
+  color: var(--title-color);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.footer-link:hover {
+  color: var(--btn-color);
+}
+
+.footer-subtext {
+  color: var(--foreground);
+  font-size: 0.95rem;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // استيراد useRouter
+import { useRouter } from "next/navigation"; // import useRouter
 import {
   Navbar,
   Nav,
@@ -19,13 +19,13 @@ const NavBar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(70); // قيمة الزوم الافتراضية
+  const [zoomLevel, setZoomLevel] = useState(70); // default zoom value
   const [expandedIndex, setExpandedIndex] = useState(null);
-  const router = useRouter(); // استخدام useRouter
+  const router = useRouter(); // using useRouter
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    // تحميل الثيم من localStorage أو تعيين "light" كقيمة افتراضية
+    // Load theme from localStorage or default to "light"
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -61,23 +61,23 @@ const NavBar = () => {
   }, []);
 
   const handleNavigation = (path) => {
-    router.push(path); // التنقل أولًا
+    router.push(path); // navigate first
     setTimeout(() => {
-      setShowCart(false); // إغلاق السلة بعد تأخير
-    }, 2000); // التأخير بالـ 2 ثانية
+      setShowCart(false); // close cart after delay
+    }, 2000); // 2 seconds delay
   };
 
-  // دالة لزيادة الزوم
+  // Zoom in function
   const increaseZoom = () => {
-    setZoomLevel((prevZoom) => Math.min(prevZoom + 10, 150)); // لا يزيد عن 150%
+    setZoomLevel((prevZoom) => Math.min(prevZoom + 10, 150)); // max 150%
   };
 
-  // دالة لتقليل الزوم
+  // Zoom out function
   const decreaseZoom = () => {
-    setZoomLevel((prevZoom) => Math.max(prevZoom - 10, 50)); // لا يقل عن 50%
+    setZoomLevel((prevZoom) => Math.max(prevZoom - 10, 50)); // min 50%
   };
 
-  // دالة لزيادة الكمية
+  // Increase quantity
   const increaseQuantity = (id, e) => {
     e.stopPropagation();
     const updatedCart = cartItems.map((item) =>
@@ -88,7 +88,7 @@ const NavBar = () => {
     setCartCount(updatedCart.reduce((sum, item) => sum + item.quantity, 0));
   };
 
-  // دالة لنقص الكمية
+  // Decrease quantity
   const decreaseQuantity = (id, e) => {
     e.stopPropagation();
     const updatedCart = cartItems.map((item) =>
@@ -101,7 +101,7 @@ const NavBar = () => {
     setCartCount(updatedCart.reduce((sum, item) => sum + item.quantity, 0));
   };
 
-  // دالة لحذف عنصر معين
+  // Remove one item
   const removeItem = (id, e) => {
     e.stopPropagation();
     const updatedCart = cartItems.filter((item) => item.id !== id);
@@ -110,7 +110,7 @@ const NavBar = () => {
     setCartCount(updatedCart.reduce((sum, item) => sum + item.quantity, 0));
   };
 
-  // دالة لحذف كل العناصر
+  // Remove all items
   const removeAllItems = (e) => {
     e.stopPropagation();
     localStorage.setItem("cart", JSON.stringify([]));
@@ -118,7 +118,7 @@ const NavBar = () => {
     setCartCount(0);
   };
 
-  // حساب الإجمالي
+  // Calculate total price
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -127,18 +127,21 @@ const NavBar = () => {
   return (
     <>
       <ClientZoomEffect zoomLevel={zoomLevel} />{" "}
-      {/* هنا قمنا بتمرير قيمة الزوم */}
+      {/* passing zoom level */}
       <Navbar
         expand="lg"
-        bg="light"
-        variant="light"
+        bg={theme === "light" ? "light" : "dark"}
+        variant={theme === "light" ? "light" : "dark"}
         className="shadow-sm sticky-top"
-        style={{ backgroundColor: "#f8f9fa" }}
+        style={{
+          backgroundColor: theme === "light" ? "#f8f9fa" : "#1c1c1c",
+          transition: "background-color 0.3s ease",
+        }}
       >
         <Navbar.Brand
           onClick={() => handleNavigation("/")}
+          className={theme === "light" ? "text-dark" : "text-light"}
           style={{
-            color: "#1a3c34",
             fontWeight: "bold",
             paddingLeft: "35px",
             cursor: "pointer",
@@ -155,7 +158,13 @@ const NavBar = () => {
             alt="Logo"
             width="100"
             height="20"
-            style={{ marginRight: "10px", borderRadius: "50%", padding: "2px" }}
+            style={{
+              marginRight: "10px",
+              borderRadius: "50%",
+              padding: "2px",
+              filter: theme === "dark" ? "brightness(0) invert(1)" : "none",
+              transition: "filter 0.3s ease",
+            }}
           />
         </Navbar.Brand>
 
@@ -165,15 +174,22 @@ const NavBar = () => {
             {["/", "/products", "/orders"].map((path, idx) => (
               <Nav.Link
                 key={idx}
-                onClick={() => handleNavigation(path)} // استبدال as={Link} بـ onClick
+                onClick={() => handleNavigation(path)} // replace as={Link} with onClick
+                className={
+                  theme === "light" ? "text-dark" : "text-light"
+                }
                 style={{
-                  color: "#1a3c34",
                   margin: "0 10px",
                   transition: "color 0.3s ease",
                   cursor: "pointer",
                 }}
-                onMouseEnter={(e) => (e.target.style.color = "#16a085")}
-                onMouseLeave={(e) => (e.target.style.color = "#1a3c34")}
+                onMouseEnter={(e) =>
+                  (e.target.style.color =
+                    theme === "light" ? "#16a085" : "#48dbfb")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.color = theme === "light" ? "#1a3c34" : "#f1f1f1")
+                }
               >
                 {["Home", "Products", "Orders"][idx]}
               </Nav.Link>
@@ -183,14 +199,13 @@ const NavBar = () => {
           {/* Theme Toggle Button */}
           <Button
             onClick={toggleTheme}
-            variant="outline-secondary"
+            variant={theme === "light" ? "outline-secondary" : "outline-light"}
             className="me-3 toggle-theme-btn"
-            
           >
             {theme === "light" ? <FaMoon /> : <FaSun />}
           </Button>
 
-          {/* Cart Dropdown */}
+           {/* Cart Dropdown */}
           <Dropdown
             show={showCart}
             onToggle={(isOpen) => setShowCart(isOpen)}
@@ -507,7 +522,7 @@ const NavBar = () => {
             >
               <FaSearchMinus />
             </Button>
-            <span style={{ color: "#1a3c34", fontWeight: "bold" }}>
+            <span className="zoom-level">
               {" "}
               {zoomLevel}%
             </span>

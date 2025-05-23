@@ -74,7 +74,7 @@ export default function ProductDetails({ product: initialProduct }) {
 
   const router = useRouter();
 
-  const PRICE_MULTIPLIER = 2;
+  const PRICE_MULTIPLIER = 1;
   const COMPARE_PRICE_MULTIPLIER = 2.0;
 
   const originalPrice = parseFloat(selectedVariant?.price || 0);
@@ -384,7 +384,7 @@ const isOutOfStock = !selectedVariant?.inventory
               <p className="fs-4 fw-bold text-primary m-0">
                 {adjustedPrice.toFixed(2)}
               </p>
-              <p className="fs-5 text-muted text-decoration-line-through m-0">
+              <p className="fs-5  text-decoration-line-through m-0">
                 {adjustedComparePrice.toFixed(2)}
               </p>
               <Badge bg="success">50% OFF</Badge>
@@ -463,7 +463,7 @@ const isOutOfStock = !selectedVariant?.inventory
             {estimatedDelivery && (
               <div className="d-flex align-items-center gap-2 ms-auto">
                 <FaTruck className="text-warning" />
-                <span className="text-dark fw-bold small text-nowrap">
+                <span className="fw-bold small text-nowrap">
                   Estimated Delivery:
                   <span className="fw-semibold text-primary fs-6">
                     {estimatedDelivery}
@@ -494,7 +494,7 @@ const isOutOfStock = !selectedVariant?.inventory
           </div>
 
           <div className="mt-5">
-            <div className="border p-3 rounded bg-light">
+            <div className=" product-description">
               <h2
                 style={{
                   fontWeight: "bold",
@@ -510,7 +510,7 @@ const isOutOfStock = !selectedVariant?.inventory
               <hr style={{ border: "1px solid #ff6600", margin: "10px 0" }} />
               <br />
               <br />
-              <div dangerouslySetInnerHTML={{ __html: cleanDescription }} />
+              <div  dangerouslySetInnerHTML={{ __html: cleanDescription }} />
             </div>
           </div>
         </Col>
