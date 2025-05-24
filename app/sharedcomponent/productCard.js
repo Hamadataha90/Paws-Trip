@@ -122,7 +122,7 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <Link href={`/products/${product.id}`} passHref>
+    <Link href={`/products/${product.id}`} passHref onClick={handleViewProduct}>
       <Card
         className="card-hover shadow-sm text-center d-flex flex-column position-relative h-100"
         style={{ cursor: "pointer", overflow: "hidden", height: "25rem" }}

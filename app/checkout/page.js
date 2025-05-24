@@ -269,8 +269,8 @@ const CheckoutPage = () => {
   return (
     <Container className="mt-5 mb-5">
       <h1
-        className="text-center mb-4"
-        style={{ color: "#1a3c34", fontWeight: "bold" }}
+        className="text-center mb-4 "
+        
       >
         Checkout
       </h1>
@@ -565,7 +565,7 @@ const CheckoutPage = () => {
                   <option value="USDT.TRC20">Tether USD (Tron)</option>
                   <option value="USDT.BEP20">Tether USD (BSC)</option>
                   <option value="USDT.SOL">Tether USD (Solana)</option>
-                  <option value="LTCT">Litecoin Testnet (LTCT)</option>
+                  {/* <option value="LTCT">Litecoin Testnet (LTCT)</option> */}
                 </Form.Select>
               </Form.Group>
 
