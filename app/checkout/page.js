@@ -268,12 +268,7 @@ const CheckoutPage = () => {
 
   return (
     <Container className="mt-5 mb-5">
-      <h1
-        className="text-center mb-4 "
-        
-      >
-        Checkout
-      </h1>
+      <h1 className="text-center mb-4 ">Checkout</h1>
       {message && (
         <Alert
           variant={message.type}
@@ -556,15 +551,14 @@ const CheckoutPage = () => {
                     transition: "border-color 0.3s ease",
                   }}
                 >
-                  <option value="TRX">TRON TRX</option>
-
-                  <option value="USDC.TRC20">USD Coin (Tron)</option>
-                  <option value="USDC.BEP20">USD Coin (BSC)</option>
-                  <option value="USDC.SOL">USD Coin (Solana)</option>
-                  <option value="DAI.BEP20">Dai Token (BSC)</option>
-                  <option value="USDT.TRC20">Tether USD (Tron)</option>
-                  <option value="USDT.BEP20">Tether USD (BSC)</option>
-                  <option value="USDT.SOL">Tether USD (Solana)</option>
+                  <option value="TRX">TRX (TRON - Native)</option>
+                  <option value="USDC.TRC20">USDC (Tron - TRC20)</option>
+                  <option value="USDC.BEP20">USDC (BSC - BEP20)</option>
+                  <option value="USDC.SOL">USDC (Solana - SPL)</option>
+                  <option value="DAI.BEP20">DAI (BSC - BEP20)</option>
+                  <option value="USDT.TRC20">USDT (Tron - TRC20)</option>
+                  <option value="USDT.BEP20">USDT (BSC - BEP20)</option>
+                  <option value="USDT.SOL">USDT (Solana - SPL)</option>
                   {/* <option value="LTCT">Litecoin Testnet (LTCT)</option> */}
                 </Form.Select>
               </Form.Group>
