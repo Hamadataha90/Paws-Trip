@@ -6,7 +6,7 @@ import axios from "axios";
 export async function createCoinPaymentTransaction(formData) {
   const amount = formData.get("amount");
   const email = formData.get("email");
-  const currency2 = formData.get("currency2") || "LTCT";
+  const currency2 = formData.get("currency2") || "USDC.TRC20";
 
   // التأكد من وجود المفاتيح في البيئة
   const publicKey = process.env.COINPAYMENTS_PUBLIC_KEY;
