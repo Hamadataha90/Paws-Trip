@@ -65,7 +65,7 @@ const CheckoutPage = () => {
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [selectedCurrency, setSelectedCurrency] = useState("LTCT");
+  const [selectedCurrency, setSelectedCurrency] = useState("USDC.TRC20");
   const [finalPrice, setFinalPrice] = useState(null); // السعر النهائي بعد الخصم
   const [discountRate, setDiscountRate] = useState(0); // نسبة الخصم
   const paypalRendered = useRef(false);
