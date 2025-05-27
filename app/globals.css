@@ -24,24 +24,28 @@ html[lang="ar"] * {
 /* 🌈 Theme Variables */
 :root {
   /* Colors */
-  --background: white;
-  --foreground: #333;
-  --primary-color: #e83249;
-  --primary-color-dark: #3700B3;
-  --secondary-color: #fce6e9;
-  --background-navbar: white;
-  --lang-icon: black;
+  --background: #fffaf4;
+  --foreground: #333333;
+  --primary-color: #4a8b7d;
+  --primary-color-dark: #3a6b5e;
+  --secondary-color: #f0e6d2;
+  --accent-color: #e88b6d;
+  --background-navbar: #ffffff;
+  --lang-icon: #333333;
   --button-background: transparent;
-  --button-color: white;
-  --card-background: white;
-  --title-color: black;
-  --btn-color: #e83249;
-  --tab-color: #e83249;
-  --logo-color: white;
-  --order-btn-color: #e83249;
-  --btn-order: white;
-  --text-color: #333;
-  --text-color-muted: #777;
+  --button-color: #ffffff;
+  --card-background: #ffffff;
+  --title-color: #111111;
+  --btn-color: #4a8b7d;
+  --tab-color: #4a8b7d;
+  --logo-color: #ffffff;
+  --order-btn-color: #e88b6d;
+  --btn-order: #ffffff;
+  --text-color: #333333;
+  --text-color-muted: #777777;
+
+  /* Gradient */
+  --gradient-main: linear-gradient(135deg, #4a8b7d, #f0c05a, #e88b6d);
 
   /* Spacing */
   --padding-small: 8px;
@@ -62,33 +66,47 @@ html[lang="ar"] * {
   --transition-fast: 0.2s;
   --transition-medium: 0.3s;
   --transition-slow: 0.5s;
-
-  /* Gradient */
-  --gradient-main: linear-gradient(135deg, #ef9d89, #feb47b);
 }
 
 /* 🌙 Dark Theme Variables */
 [data-theme='dark'] {
-  --background: #000;
-  --foreground: white;
-  --secondary-color: #151818;
-  --background-navbar: black;
-  --lang-icon: white;
-  --primary-color: black;
-  --primary-color-dark: white;
-  --button-background: #e83249;
-  --button-color: white;
-  --card-background: #151818;
-  --title-color: white;
-  --btn-color: white;
-  --tab-color: #e83249;
-  --logo-color: #e83249;
-  --btn-order: black;
-  --order-btn-color: white;
-  --text-color: #eee;
-  --text-color-muted: #aaa;
-}
+  --background: #2a2e35;
+  --foreground: #d9e0d8;
+  --primary-color: #6ca395;
+  --primary-color-dark: #4a8b7d;
+  --secondary-color: #3c403d;
+  --accent-color: #e88b6d;
+  --background-navbar: #3c403d;
+  --lang-icon: #dddddd;
+  --button-background: #6ca395;
+  --button-color: #ffffff;
+  --card-background: #3c403d;
+  --title-color: #ffffff;
+  --btn-color: #ffffff;
+  --tab-color: #6ca395;
+  --logo-color: #6ca395;
+  --btn-order: #3c403d;
+  --order-btn-color: #ffffff;
+  --text-color: #d9e0d8;
+  --text-color-muted: #888888;
 
+  /* Gradient */
+  --gradient-main: linear-gradient(135deg, #4a8b7d, #f0c05a, #e88b6d);
+
+  /* Spacing, Radius, Shadows, Transitions */
+  --padding-small: 8px;
+  --padding-medium: 12px;
+  --padding-large: 20px;
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+  --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0px 6px 15px rgba(0, 0, 0, 0.25);
+  --transition-fast: 0.2s;
+  --transition-medium: 0.3s;
+  --transition-slow: 0.5s;
+}
 /* 🌞 Body Styling */
 body {
   background: var(--background) !important;
@@ -96,6 +114,15 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: hidden;
+}
+navbar-custom {
+  background-color: var(--background-navbar);
+  color: var(--foreground);
+  padding: var(--padding-medium);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 /* 🌓 Theme Toggle Button */
@@ -410,6 +437,7 @@ img {
 /* Footer styles based on theme variables */
 .footer-section {
   background-color: var(--background-navbar);
+  color: var(--foreground);
   color: var(--title-color);
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }

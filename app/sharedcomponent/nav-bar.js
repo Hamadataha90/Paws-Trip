@@ -132,11 +132,12 @@ const NavBar = () => {
         expand="lg"
         bg={theme === "light" ? "light" : "dark"}
         variant={theme === "light" ? "light" : "dark"}
-        className="shadow-sm sticky-top"
-        style={{
-          backgroundColor: theme === "light" ? "#f8f9fa" : "#1c1c1c",
-          transition: "background-color 0.3s ease",
-        }}
+        className="shadow-sm sticky-top navbar-custom"
+        collapseOnSelect
+        // style={{
+        //   backgroundColor: theme === "light" ? "#f8f9fa" : "#1c1c1c",
+        //   transition: "background-color 0.3s ease",
+        // }}
       >
         <Navbar.Brand
           onClick={() => handleNavigation("/")}
