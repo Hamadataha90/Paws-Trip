@@ -21,6 +21,7 @@ const NavBar = () => {
   const [showCart, setShowCart] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(70); // default zoom value
   const [expandedIndex, setExpandedIndex] = useState(null);
+  const [expanded, setExpanded] = useState(false);
   const router = useRouter(); // using useRouter
   const [theme, setTheme] = useState("light");
 
@@ -63,6 +64,8 @@ const NavBar = () => {
   const handleNavigation = (path) => {
     router.push(path); // navigate first
     setTimeout(() => {
+      setExpanded(false); // close the navbar after navigation
+      setExpandedIndex(null); // reset expanded index
       setShowCart(false); // close cart after delay
     }, 2000); // 2 seconds delay
   };
@@ -134,10 +137,8 @@ const NavBar = () => {
         variant={theme === "light" ? "light" : "dark"}
         className="shadow-sm sticky-top navbar-custom"
         collapseOnSelect
-        // style={{
-        //   backgroundColor: theme === "light" ? "#f8f9fa" : "#1c1c1c",
-        //   transition: "background-color 0.3s ease",
-        // }}
+        expanded={expanded}
+        onToggle={() => setExpanded(!expanded)} // toggle expanded state
       >
         <Navbar.Brand
           onClick={() => handleNavigation("/")}
