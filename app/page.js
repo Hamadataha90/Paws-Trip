@@ -33,12 +33,14 @@ export default async function HomePage() {
         </div>
 
         <div className="text-center">
-          <img
-            src="/pet-travel-cute.png"
-            alt="Cute pet in travel gear"
-            className="img-fluid rounded-3 shadow"
-            style={{ maxWidth: "500px" }}
-          />
+          <div className="text-center">
+  <img
+    src="/pet-travel-cute.png"
+    alt="Cute pet in travel gear"
+    className="img-fluid rounded-3 shadow"
+    style={{ maxWidth: "100%", width: "600px", height: "auto" }}
+  />
+</div>
         </div>
       </div>
 
