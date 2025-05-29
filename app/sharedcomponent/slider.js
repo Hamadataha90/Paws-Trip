@@ -1,11 +1,28 @@
-"use client"; 
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Row, Col, Carousel, Spinner } from "react-bootstrap";
 import ProductCard from "./productCard";
 
-const Slider = ({ products, title = "", chunkSize = 3 }) => {
+const Slider = ({ products, title = "" }) => {
   const [loading, setLoading] = useState(false);
+  const [chunkSize, setChunkSize] = useState(3);
+
+  useEffect(() => {
+    const updateChunkSize = () => {
+      if (window.innerWidth < 576) {
+        setChunkSize(1);
+      } else if (window.innerWidth >= 992) {
+        setChunkSize(3);
+      } else {
+        setChunkSize(2);
+      }
+    };
+
+    updateChunkSize();
+    window.addEventListener("resize", updateChunkSize);
+    return () => window.removeEventListener("resize", updateChunkSize);
+  }, []);
 
   if (!products || products.length === 0) {
     return <p className="text-center">No products available.</p>;
@@ -18,14 +35,19 @@ const Slider = ({ products, title = "", chunkSize = 3 }) => {
 
   return (
     <div className="position-relative">
-      <Container fluid  className="mt-2">
+      <Container fluid className="mt-2">
         <h2 className="text-center mb-4">{title}</h2>
-        <Carousel interval={3000} pause="hover">
+        <Carousel interval={3000} pause="hover" touch={true}>
           {productChunks.map((chunk, index) => (
             <Carousel.Item key={index}>
               <Row className="justify-content-center g-4">
                 {chunk.map((product) => (
-                  <Col key={product.id} xs={4} sm={4} md={4}>
+                  <Col
+                    key={product.id}
+                    xs={12}
+                    sm={chunkSize === 1 ? 12 : 6}
+                    md={chunkSize === 3 ? 4 : chunkSize === 2 ? 6 : 12}
+                  >
                     <ProductCard product={product} />
                   </Col>
                 ))}

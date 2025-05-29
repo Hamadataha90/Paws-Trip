@@ -62,10 +62,11 @@ export default function RootLayout({ children }) {
             className="free-shipping-banner "
           />
           {children}
-          <Analytics />{/* Add Vercel Analytics */}
+          <Analytics />
           <Footer />
         </DarkMode>
       </body>
     </html>
   );
 }
+
