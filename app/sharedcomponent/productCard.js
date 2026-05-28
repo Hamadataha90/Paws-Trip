@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Button, Card, Spinner } from "react-bootstrap";
 
@@ -10,7 +9,6 @@ const ProductCard = ({ product }) => {
   const [addedToCart, setAddedToCart] = useState(false);
   const [loadingView, setLoadingView] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const router = useRouter();
 
   const PRICE_MULTIPLIER = 1;
   const COMPARE_PRICE_MULTIPLIER = 2.0;
@@ -117,113 +115,85 @@ const ProductCard = ({ product }) => {
     setLoadingView(true);
     setLoadingMessage(getRandomMessage());
     setTimeout(() => {
-      router.push(`/products/${product.id}`);
+      window.location.href = `/products/${product.id}`;
     }, 1500);
   };
 
   return (
-    <Link href={`/products/${product.id}`} passHref onClick={handleViewProduct}>
+    <Link href={`/products/${product.id}`} passHref className="text-decoration-none">
       <Card
-        className="card-hover shadow-sm text-center d-flex flex-column position-relative h-100"
-        style={{ cursor: "pointer", overflow: "hidden", height: "25rem" }}
+        className="product-card-modern h-100 border-0 bg-transparent"
+        style={{ cursor: "pointer" }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div style={{ position: "relative", width: "100%", height: "25rem" }}>
+        <div className="product-image-wrapper position-relative rounded-4 overflow-hidden mb-3 shadow-sm">
           <Card.Img
-            className="card-img-top"
             variant="top"
             src={images[0]?.src || "https://via.placeholder.com/300"}
             alt={product.title}
+            className="product-img"
             style={{
-              height: "100%",
+              height: "280px",
               objectFit: "cover",
-              transition: "all 0.3s ease-in-out",
-              filter: hovered ? "brightness(0.8)" : "brightness(1)",
+              transition: "transform 0.5s ease",
+              transform: hovered ? "scale(1.05)" : "scale(1)",
             }}
           />
 
-          {loadingView && (
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                padding: "15px 25px",
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                zIndex: 10,
-              }}
-            >
-              <Spinner animation="border" variant="primary" size="sm" />
-              <span className="text-primary fw-bold">{loadingMessage}</span>
-            </div>
-          )}
-
-          <Card.Body
-            className="d-flex flex-column justify-content-center align-items-center"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              opacity: hovered ? 1 : 0,
-              transition: "opacity 0.4s ease-in-out",
-              padding: "7px",
-              textAlign: "center",
+          {/* Stock Indicator Badge */}
+          <div 
+            className="position-absolute top-0 start-0 m-3 px-2 py-1 rounded-pill d-flex align-items-center gap-2"
+            style={{ 
+              background: "rgba(255,255,255,0.9)", 
+              backdropFilter: "blur(4px)",
+              fontSize: "0.75rem",
+              fontWeight: "600",
+              color: "var(--title-color)"
             }}
           >
-            <Card.Title>{product.title}</Card.Title>
-            <Card.Text className="text-muted">{product.vendor}</Card.Text>
-            <Card.Text className="fw-bold">
-              <del className="text-muted me-2">
-                ${adjustedComparePrice.toFixed(2)}
-              </del>
-              <span className="text-primary">${adjustedPrice.toFixed(2)}</span>
-            </Card.Text>
-          </Card.Body>
+            <span className={`stock-dot ${isOutOfStock ? 'bg-danger' : 'bg-success'}`}></span>
+            {isOutOfStock ? "Out of Stock" : "In Stock"}
+          </div>
+
+          {/* Action Buttons Overlay */}
+          <div
+            className="product-actions-overlay position-absolute bottom-0 w-100 p-3 d-flex justify-content-center"
+            style={{
+              background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)",
+              opacity: hovered ? 1 : 0,
+              transform: hovered ? "translateY(0)" : "translateY(10px)",
+              transition: "all 0.3s ease"
+            }}
+          >
+            <Button
+              variant="light"
+              className="rounded-pill fw-bold px-4 shadow-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                handleViewProduct();
+              }}
+              disabled={loadingView}
+            >
+              {loadingView ? (
+                <><Spinner animation="border" size="sm" className="me-2"/> Loading...</>
+              ) : "View Details"}
+            </Button>
+          </div>
         </div>
 
-        <div
-          style={{
-            position: "absolute",
-            bottom: "30px",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            gap: "10px",
-            opacity: hovered ? 1 : 0,
-            transition: "opacity 0.4s ease-in-out",
-            marginTop: "10px",
-          }}
-        >
-          {/* {addedToCart ? (
-            <div className="text-success fw-bold">✅ Added to Cart!</div>
-          ) : (
-            <div className="button-group d-flex justify-content-center gap-2">
-              <Button
-                variant="primary"
-                onClick={handleAddToCart}
-                disabled={isOutOfStock}
-              >
-                {isOutOfStock ? "Out of Stock" : "Add to Cart"}
-              </Button>
-            </div>
-          )} */}
-          <Button
-            variant="outline-primary"
-            onClick={handleViewProduct}
-            disabled={loadingView}
-          >
-            {loadingView ? "Loading..." : "View Product"}
-          </Button>
-        </div>
+        <Card.Body className="p-0 text-center">
+          <p className="text-muted small mb-1">{product.vendor}</p>
+          <Card.Title className="fs-6 fw-bold mb-2 text-truncate" style={{ color: "var(--title-color)" }}>
+            {product.title}
+          </Card.Title>
+          <div className="d-flex justify-content-center align-items-center gap-2">
+            {adjustedComparePrice > adjustedPrice && (
+              <del className="text-muted small">${adjustedComparePrice.toFixed(2)}</del>
+            )}
+            <span className="fw-bold fs-5 text-primary">${adjustedPrice.toFixed(2)}</span>
+          </div>
+        </Card.Body>
       </Card>
     </Link>
   );

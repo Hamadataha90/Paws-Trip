@@ -1,13 +1,12 @@
 // app/layout.js
 import React from "react";
 import { Cairo } from "next/font/google";
-import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./globals.css";
 import NavBar from "./sharedcomponent/nav-bar";
 import Footer from "./sharedcomponent/footer";
 import FreeShippingBanner from "./sharedcomponent/FreeShippingBanner";
-import DarkMode from "./utils/dark-mode";
-import ClientZoomEffect from "./sharedcomponent/ClientZoomEffect"; // Import the client-side zoom component
 import { Analytics } from "@vercel/analytics/react"
 
 const cairo = Cairo({
@@ -18,6 +17,7 @@ const cairo = Cairo({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://paws-trip.vercel.app"),
   title: "Paws Trip",
   description: "Paws Trip - Your Pet's Travel Companion",
   icons: {
@@ -44,27 +44,20 @@ export const metadata = {
   },  
 };
 
-function getInitialTheme() {
-  return "light"; // Default theme
-}
-
 export default function RootLayout({ children }) {
-  const initialTheme = getInitialTheme();
-
   return (
-    <html lang="en" data-theme={initialTheme} style={{ colorScheme: initialTheme }}>
+    <html lang="en" suppressHydrationWarning>
       <body className={cairo.variable}>
-        <DarkMode initialTheme={initialTheme}>
-          <ClientZoomEffect zoomLevel={70} / > 
+        <ThemeProvider attribute="data-theme" enableSystem defaultTheme="dark">
           <NavBar />
           <FreeShippingBanner
             title="Free Shipping on all Orders"
-            className="free-shipping-banner "
+            className="free-shipping-banner"
           />
           {children}
           <Analytics />
           <Footer />
-        </DarkMode>
+        </ThemeProvider>
       </body>
     </html>
   );

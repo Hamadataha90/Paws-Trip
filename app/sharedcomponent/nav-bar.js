@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation"; // import useRouter
+import { useTheme } from "next-themes";
 import {
   Navbar,
   Nav,
@@ -13,7 +15,6 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { FaSearchPlus, FaSearchMinus, FaMoon, FaSun } from "react-icons/fa";
-import ClientZoomEffect from "./ClientZoomEffect";
 
 const NavBar = () => {
   const [cartCount, setCartCount] = useState(0);
@@ -23,20 +24,31 @@ const NavBar = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [expanded, setExpanded] = useState(false);
   const router = useRouter(); // using useRouter
-  const [theme, setTheme] = useState("light");
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Load theme from localStorage or default to "light"
-    const savedTheme = localStorage.getItem("theme") || "light";
-    setTheme(savedTheme);
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    setMounted(true);
   }, []);
 
+  // Apply zoom level directly to document body whenever it changes
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.body.style.zoom = `${zoomLevel}%`;
+      // Firefox fix: use transform scale instead
+      if (navigator.userAgent.toLowerCase().includes("firefox")) {
+        document.body.style.transform = `scale(${zoomLevel / 100})`;
+        document.body.style.transformOrigin = "top left";
+        document.body.style.width = `${100 / (zoomLevel / 100)}%`;
+      }
+    }
+  }, [zoomLevel]);
+
+  const currentTheme = mounted
+    ? (theme === "system" ? resolvedTheme : theme) || "light"
+    : "light";
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
+    setTheme(currentTheme === "dark" ? "light" : "dark");
   };
 
   useEffect(() => {
@@ -129,12 +141,10 @@ const NavBar = () => {
 
   return (
     <>
-      <ClientZoomEffect zoomLevel={zoomLevel} />{" "}
-      {/* passing zoom level */}
       <Navbar
         expand="lg"
-        bg={theme === "light" ? "light" : "dark"}
-        variant={theme === "light" ? "light" : "dark"}
+        bg={currentTheme === "light" ? "light" : "dark"}
+        variant={currentTheme === "light" ? "light" : "dark"}
         className="shadow-sm sticky-top navbar-custom"
         collapseOnSelect
         expanded={expanded}
@@ -142,7 +152,7 @@ const NavBar = () => {
       >
         <Navbar.Brand
           onClick={() => handleNavigation("/")}
-          className={theme === "light" ? "text-dark" : "text-light"}
+          className={currentTheme === "light" ? "text-dark" : "text-light"}
           style={{
             fontWeight: "bold",
             paddingLeft: "35px",
@@ -153,18 +163,16 @@ const NavBar = () => {
             transition: "color 0.3s ease",
           }}
         >
-          {/* Paws Trip */}
-
-          <img
+          <Image
             src="/logo.png"
-            alt="Logo"
-            width="100"
-            height="20"
+            alt="Paws Trip logo"
+            width={100}
+            height={30}
             style={{
               marginRight: "10px",
               borderRadius: "50%",
               padding: "2px",
-              filter: theme === "dark" ? "brightness(0) invert(1)" : "none",
+              filter: currentTheme === "dark" ? "brightness(0) invert(1)" : "none",
               transition: "filter 0.3s ease",
             }}
           />
@@ -177,20 +185,21 @@ const NavBar = () => {
               <Nav.Link
                 key={idx}
                 onClick={() => handleNavigation(path)} // replace as={Link} with onClick
-                className={
-                  theme === "light" ? "text-dark" : "text-light"
-                }
+                className={`hover-underline ${
+                  currentTheme === "light" ? "text-dark" : "text-light"
+                }`}
                 style={{
-                  margin: "0 10px",
+                  margin: "0 15px",
+                  fontWeight: "600",
                   transition: "color 0.3s ease",
                   cursor: "pointer",
+                  color: "var(--text-color)",
                 }}
                 onMouseEnter={(e) =>
-                  (e.target.style.color =
-                    theme === "light" ? "#16a085" : "#48dbfb")
+                  (e.target.style.color = "var(--primary-color)")
                 }
                 onMouseLeave={(e) =>
-                  (e.target.style.color = theme === "light" ? "#1a3c34" : "#f1f1f1")
+                  (e.target.style.color = "var(--text-color)")
                 }
               >
                 {["Home", "Products", "Orders"][idx]}
@@ -201,10 +210,10 @@ const NavBar = () => {
           {/* Theme Toggle Button */}
           <Button
             onClick={toggleTheme}
-            variant={theme === "light" ? "outline-secondary" : "outline-light"}
+            variant={currentTheme === "light" ? "outline-secondary" : "outline-light"}
             className="me-3 toggle-theme-btn"
           >
-            {theme === "light" ? <FaMoon /> : <FaSun />}
+            {currentTheme === "light" ? <FaMoon /> : <FaSun />}
           </Button>
 
            {/* Cart Dropdown */}
@@ -220,17 +229,17 @@ const NavBar = () => {
               className="position-relative"
               onClick={() => setShowCart(!showCart)}
               style={{
-                borderColor: "#16a085",
-                color: "#16a085",
+                borderColor: "var(--primary-color)",
+                color: "var(--primary-color)",
                 transition: "all 0.3s ease",
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "#16a085";
+                e.target.style.backgroundColor = "var(--primary-color)";
                 e.target.style.color = "#fff";
               }}
               onMouseLeave={(e) => {
                 e.target.style.backgroundColor = "transparent";
-                e.target.style.color = "#16a085";
+                e.target.style.color = "var(--primary-color)";
               }}
             >
               🛒 Cart
@@ -256,9 +265,9 @@ const NavBar = () => {
                 overflowY: "auto",
                 padding: "20px",
                 borderRadius: "12px",
-                boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
-                backgroundColor: "#ffffff",
-                border: "1px solid #ecf0f1",
+                boxShadow: "var(--shadow-lg)",
+                backgroundColor: "var(--card-background)",
+                border: "1px solid rgba(0,0,0,0.05)",
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -278,7 +287,7 @@ const NavBar = () => {
                         transition: "background-color 0.3s ease",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor = "#f5f6f5")
+                        (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.02)")
                       }
                       onMouseLeave={(e) =>
                         (e.currentTarget.style.backgroundColor = "transparent")
@@ -296,7 +305,6 @@ const NavBar = () => {
                           border: "1px solid #ddd",
                         }}
                       />
-                      ...
                       <div style={{ flex: 1 }}>
                         <div
                           onClick={(e) => {
@@ -308,7 +316,7 @@ const NavBar = () => {
                           style={{
                             fontWeight: "bold",
                             fontSize: "1.1rem",
-                            color: "#1a3c34",
+                            color: "var(--title-color)",
                             cursor: "pointer",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -317,7 +325,7 @@ const NavBar = () => {
                             maxWidth: "250px",
                             transition: "all 0.3s ease",
                             maxHeight:
-                              expandedIndex === index ? "100px" : "1.2em", // ✅ هنا المفتاح
+                              expandedIndex === index ? "100px" : "1.2em",
                             overflowY:
                               expandedIndex === index ? "auto" : "hidden",
                           }}
@@ -340,17 +348,17 @@ const NavBar = () => {
                             onClick={(e) => decreaseQuantity(item.id, e)}
                             style={{
                               padding: "2px 10px",
-                              borderColor: "#bdc3c7",
-                              color: "#1a3c34",
+                              borderColor: "var(--text-color-muted)",
+                              color: "var(--text-color)",
                               transition: "all 0.3s ease",
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#bdc3c7";
+                              e.target.style.backgroundColor = "var(--text-color-muted)";
                               e.target.style.color = "#fff";
                             }}
                             onMouseLeave={(e) => {
                               e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = "#1a3c34";
+                              e.target.style.color = "var(--text-color)";
                             }}
                           >
                             -
@@ -358,8 +366,8 @@ const NavBar = () => {
                           <span
                             style={{
                               margin: "0 12px",
-                              color: "#1a3c34",
-                              fontWeight: "500",
+                              color: "var(--text-color)",
+                              fontWeight: "600",
                             }}
                           >
                             {item.quantity}
@@ -370,17 +378,17 @@ const NavBar = () => {
                             onClick={(e) => increaseQuantity(item.id, e)}
                             style={{
                               padding: "2px 10px",
-                              borderColor: "#bdc3c7",
-                              color: "#1a3c34",
+                              borderColor: "var(--text-color-muted)",
+                              color: "var(--text-color)",
                               transition: "all 0.3s ease",
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#bdc3c7";
+                              e.target.style.backgroundColor = "var(--text-color-muted)";
                               e.target.style.color = "#fff";
                             }}
                             onMouseLeave={(e) => {
                               e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = "#1a3c34";
+                              e.target.style.color = "var(--text-color)";
                             }}
                           >
                             +
@@ -432,7 +440,7 @@ const NavBar = () => {
                       <span
                         style={{
                           fontWeight: "bold",
-                          color: "#1a3c34",
+                          color: "var(--title-color)",
                           fontSize: "1.1rem",
                         }}
                       >
@@ -479,19 +487,19 @@ const NavBar = () => {
                         overlay={<Tooltip>Complete your purchase</Tooltip>}
                       >
                         <Button
-                          onClick={() => handleNavigation("/checkout")} // تعديل هنا كمان
+                          onClick={() => handleNavigation("/checkout")}
                           variant="success"
                           size="sm"
                           style={{
-                            backgroundColor: "#16a085",
-                            borderColor: "#16a085",
+                            backgroundColor: "var(--primary-color)",
+                            borderColor: "var(--primary-color)",
                             transition: "all 0.3s ease",
                           }}
                           onMouseEnter={(e) =>
-                            (e.target.style.backgroundColor = "#138d75")
+                            (e.target.style.backgroundColor = "var(--primary-color-dark)")
                           }
                           onMouseLeave={(e) =>
-                            (e.target.style.backgroundColor = "#16a085")
+                            (e.target.style.backgroundColor = "var(--primary-color)")
                           }
                         >
                           Proceed to Checkout
@@ -516,8 +524,8 @@ const NavBar = () => {
               variant="outline-dark"
               onClick={decreaseZoom}
               style={{
-                borderColor: "#16a085",
-                color: "#16a085",
+                borderColor: "var(--primary-color)",
+                color: "var(--primary-color)",
                 marginRight: "10px",
                 transition: "all 0.3s ease",
               }}
@@ -532,8 +540,8 @@ const NavBar = () => {
               variant="outline-dark"
               onClick={increaseZoom}
               style={{
-                borderColor: "#16a085",
-                color: "#16a085",
+                borderColor: "var(--primary-color)",
+                color: "var(--primary-color)",
                 transition: "all 0.3s ease",
               }}
             >

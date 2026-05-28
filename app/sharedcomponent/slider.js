@@ -37,7 +37,7 @@ const Slider = ({ products, title = "" }) => {
     <div className="position-relative">
       <Container fluid className="mt-2">
         <h2 className="text-center mb-4">{title}</h2>
-        <Carousel interval={3000} pause="hover" touch={true}>
+        <Carousel interval={3000} pause="hover" touch={true} className="premium-slider">
           {productChunks.map((chunk, index) => (
             <Carousel.Item key={index}>
               <Row className="justify-content-center g-4">

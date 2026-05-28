@@ -1,0 +1,12 @@
+[
+  {
+    "id": 111111,
+    "title": "Sample Travel Carrier",
+    "vendor": "Paws-Trip",
+    "images": [{ "src": "/pet-travel-cute.png" }],
+    "variants": [
+      { "id": 11111, "title": "Default Title", "price": "59.99", "sku": "PTC-001", "inventory_item_id": 5001 }
+    ],
+    "inventory": "In Stock"
+  }
+]
