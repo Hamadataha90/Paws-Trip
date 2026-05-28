@@ -1,6 +1,5 @@
 import { sql } from "@vercel/postgres";
 import { createHmac } from "crypto";
-import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
 const SHOPIFY_API_BASE = process.env.SHOPIFY_API_BASE;
@@ -8,6 +7,33 @@ const SHOPIFY_HEADERS = {
   "Content-Type": "application/json",
   "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
 };
+const RESEND_API_KEY = process.env.RESEND_API;
+const RESEND_FROM = process.env.RESEND_FROM || process.env.EMAIL_USER || "no-reply@paws-trip.com";
+
+async function sendResendEmail({ to, subject, text, html }) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from: RESEND_FROM,
+      to,
+      subject,
+      text,
+      html,
+    }),
+  });
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    throw new Error(`Resend API error: ${response.status} - ${responseText}`);
+  }
+
+  return JSON.parse(responseText);
+}
 
 export async function POST(req) {
   try {
@@ -243,32 +269,30 @@ export async function POST(req) {
       );
     }
 
-    // إرسال إيميل
+    // إرسال إيميل باستخدام Resend API
     if (buyer_email) {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: buyer_email,
-        subject:
-          status >= 100 ? "Payment Confirmation" : "Payment Status Update",
-        text:
+      if (!RESEND_API_KEY) {
+        console.warn(
+          "⚠️ RESEND_API missing; skipping email. Add RESEND_API to your environment variables."
+        );
+      } else {
+        const subject =
+          status >= 100 ? "Payment Confirmation" : "Payment Status Update";
+        const text =
           status >= 100
             ? `Your payment with transaction ID ${txn_id} has been confirmed. Status: ${status_text}`
-            : `Your payment with transaction ID ${txn_id} is still pending. Status: ${status_text}`,
-      };
+            : `Your payment with transaction ID ${txn_id} is still pending. Status: ${status_text}`;
 
-      try {
-        await transporter.sendMail(mailOptions);
-        console.log("📧 Email sent successfully to", buyer_email);
-      } catch (error) {
-        console.error("📧 Error sending email:", error.message);
+        try {
+          await sendResendEmail({
+            to: buyer_email,
+            subject,
+            text,
+          });
+          console.log("📧 Email sent successfully to", buyer_email);
+        } catch (error) {
+          console.error("📧 Error sending email via Resend:", error.message);
+        }
       }
     } else {
       console.warn("⚠️ No email available, skipping email");

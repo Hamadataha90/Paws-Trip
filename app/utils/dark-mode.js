@@ -27,9 +27,6 @@ export default function DarkMode({ children, initialTheme }) {
   return (
     <>
       {children}
-      <button onClick={toggleTheme} style={{ position: "fixed", top: 10, right: 10 }}>
-        Toggle {theme === "light" ? "Dark" : "Light"} Mode
-      </button>
     </>
   );
 }

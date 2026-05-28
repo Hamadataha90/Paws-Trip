@@ -21,21 +21,21 @@ const Footer = () => {
 
           {/* Quick Links */}
           <Col md={4} className="mb-3">
-            <h5 className="fw-bold mb-3">🔗 Quick Links</h5>
+            <h5 className="fw-bold mb-3 text-primary">🔗 Quick Links</h5>
             <ul className="list-unstyled">
               <li className="mb-2">
                 <Link href="/" passHref legacyBehavior>
-                  <a className="footer-link">🏠 Home</a>
+                  <a className="footer-link hover-underline d-inline-block py-1">🏠 Home</a>
                 </Link>
               </li>
               <li className="mb-2">
                 <Link href="/products" passHref legacyBehavior>
-                  <a className="footer-link">🛍️ Products</a>
+                  <a className="footer-link hover-underline d-inline-block py-1">🛍️ Products</a>
                 </Link>
               </li>
               <li className="mb-2">
                 <Link href="/orders" passHref legacyBehavior>
-                  <a className="footer-link">📦 Orders</a>
+                  <a className="footer-link hover-underline d-inline-block py-1">📦 Orders</a>
                 </Link>
               </li>
             </ul>
@@ -43,12 +43,12 @@ const Footer = () => {
 
           {/* Contact Section */}
           <Col md={4} className="mb-3">
-            <h5 className="fw-bold mb-3">📞 Contact Us</h5>
+            <h5 className="fw-bold mb-3 text-primary">📞 Contact Us</h5>
             <p className="mb-2">
-              📧 <a href="mailto:support@paws-trip.com" className="footer-link">support@paws-trip.com</a>
+              📧 <a href="mailto:support@paws-trip.com" className="footer-link hover-underline">support@paws-trip.com</a>
             </p>
             <p className="mb-2">
-              📱 <a href="tel:+1234567890" className="footer-link">+1 234 567 890</a>
+              📱 <a href="tel:+1234567890" className="footer-link hover-underline">+1 234 567 890</a>
             </p>
             <p className="mb-0 footer-subtext">📍 123 Fashion St, New York, USA</p>
           </Col>
